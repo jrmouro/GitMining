@@ -46,9 +46,9 @@ public class Mining {
             this.diff = diff;
         }
 
-        public static List<CommitDiff> listCommitDiff(Path pathDir) throws IOException, InterruptedException {
+        public static List<CommitDiff> listCommitDiff(Path pathDir, boolean onlyMergesCommits) throws IOException, InterruptedException {
             List<CommitDiff> ret = new ArrayList();
-            List<Commit> commits = Commit.gitCommitHashList(pathDir);
+            List<Commit> commits = Commit.gitCommitHashList(pathDir, onlyMergesCommits);
 
             for (int i = 0; i < commits.size() - 1; i++) {
                 Diff diff = Diff.gitDiffShortstat(commits.get(i).hash, commits.get(i + 1).hash, pathDir);
@@ -58,9 +58,9 @@ public class Mining {
             return ret;
         }
 
-        public static List<CommitDiff> listCommitDiff(Path pathDir, Diff max, AtomicInteger first, AtomicInteger last) throws IOException, InterruptedException {
+        public static List<CommitDiff> listCommitDiff(Path pathDir, Diff max, AtomicInteger first, AtomicInteger last, boolean onlyMergesCommits) throws IOException, InterruptedException {
             List<CommitDiff> ret = new ArrayList();
-            List<Commit> commits = Commit.gitCommitHashList(pathDir);
+            List<Commit> commits = Commit.gitCommitHashList(pathDir, onlyMergesCommits);
 
             if (commits.size() > 0) {
                 last.set(commits.get(0).timestamp);
@@ -148,11 +148,11 @@ public class Mining {
                     + String.valueOf(this.deletions);
         }
 
-        public static List<NomalizedCommitDiffData> nomalizedCommitDiffDataList(Path pathDir) throws IOException, InterruptedException {
+        public static List<NomalizedCommitDiffData> nomalizedCommitDiffDataList(Path pathDir, boolean onlyMergesCommits) throws IOException, InterruptedException {
             List<NomalizedCommitDiffData> ret = new ArrayList();
             Diff max = new Diff();
             AtomicInteger first = new AtomicInteger(0), last = new AtomicInteger(0);
-            List<CommitDiff> dc = CommitDiff.listCommitDiff(pathDir, max, first, last);
+            List<CommitDiff> dc = CommitDiff.listCommitDiff(pathDir, max, first, last, onlyMergesCommits);
             for (CommitDiff commitDiff : dc) {
                 //if(commitDiff.c1.timestamp > commitDiff.c2.timestamp)
                 ret.add(new NomalizedCommitDiffData(first, last, max, commitDiff.c1, commitDiff.c2, commitDiff.diff));
@@ -160,8 +160,14 @@ public class Mining {
 
             return ret;
         }
+
+        static public void CommitDiffPlotSmoothBezier(List<NomalizedCommitDiffData> aux, Path script, Path data) throws IOException, InterruptedException {
+            CommitDiffDataPlotScriptSmoothBezier(script, data);
+            CommitDiffDataPlotFile(aux, data);
+            CommitDiffPlot(script);
+        }
         
-        static public void CommitDiffPlot(List<NomalizedCommitDiffData> aux, Path script, Path data) throws IOException, InterruptedException {
+          static public void CommitDiffPlot(List<NomalizedCommitDiffData> aux, Path script, Path data) throws IOException, InterruptedException {
             CommitDiffDataPlotScript(script, data);
             CommitDiffDataPlotFile(aux, data);
             CommitDiffPlot(script);
@@ -171,9 +177,7 @@ public class Mining {
 
             Process process = Runtime.getRuntime().exec("gnuplot -p " + pathDir.toString());
 
-            
             StringBuilder error = new StringBuilder();
-            
 
             BufferedReader stdError = new BufferedReader(
                     new InputStreamReader(process.getErrorStream()));
@@ -192,7 +196,37 @@ public class Mining {
             }
 
         }
-        
+
+        public static void CommitDiffDataPlotScriptSmoothBezier(Path path, Path data) throws IOException {
+
+            File file = new File(path.toString());
+
+            // delete the file if it exists
+            file.delete();
+
+            // creates the file
+            file.createNewFile();
+
+            // creates a FileWriter Object
+            FileWriter writer = new FileWriter(file);
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("set title \"CommitDiff\"\n");
+            sb.append("set xlabel \"tempo\"\n");
+            sb.append("set ylabel \"volume\"\n");
+            sb.append("set grid\n");
+            sb.append("plot \"" + data.toString() + "\" using 1:2 title 'Changed' smooth bezier, ");
+            sb.append("\"" + data.toString() + "\" using 1:3 title 'Insertions' smooth bezier, ");
+            sb.append("\"" + data.toString() + "\" using 1:4 title 'Deletions' smooth bezier\n");
+
+            // Writes the content to the file
+            writer.write(sb.toString());
+            writer.flush();
+            writer.close();
+
+        }
+
         public static void CommitDiffDataPlotScript(Path path, Path data) throws IOException {
 
             File file = new File(path.toString());
@@ -207,16 +241,14 @@ public class Mining {
             FileWriter writer = new FileWriter(file);
 
             StringBuilder sb = new StringBuilder();
-            
+
             sb.append("set title \"CommitDiff\"\n");
             sb.append("set xlabel \"tempo\"\n");
             sb.append("set ylabel \"volume\"\n");
             sb.append("set grid\n");
-            sb.append("plot \"" + data.toString() +"\" using 1:2 title 'Changed' with lines, ");
-            sb.append("\"" + data.toString() +"\" using 1:3 title 'Insertions' with lines, ");
-            sb.append("\"" + data.toString() +"\" using 1:4 title 'Deletions' with lines\n");
-                    
-                    
+            sb.append("plot \"" + data.toString() + "\" using 1:2 title 'Changed' with lines, ");
+            sb.append("\"" + data.toString() + "\" using 1:3 title 'Insertions' with lines, ");
+            sb.append("\"" + data.toString() + "\" using 1:4 title 'Deletions' with lines\n");
 
             // Writes the content to the file
             writer.write(sb.toString());
@@ -281,7 +313,7 @@ public class Mining {
             return ret;
         }
 
-        public static List<Map<Double, Double>> nomalizedCommitDiffDataListMap(Path pathDir) throws IOException, InterruptedException {
+        public static List<Map<Double, Double>> nomalizedCommitDiffDataListMap(Path pathDir, boolean onlyMergesCommits) throws IOException, InterruptedException {
 
             List<Map<Double, Double>> ret = new ArrayList();
 
@@ -289,7 +321,7 @@ public class Mining {
                 ret.add(new HashMap());
             }
 
-            List<NomalizedCommitDiffData> list = nomalizedCommitDiffDataList(pathDir);
+            List<NomalizedCommitDiffData> list = nomalizedCommitDiffDataList(pathDir, onlyMergesCommits);
 
             for (NomalizedCommitDiffData ncdd : list) {
 
@@ -353,9 +385,14 @@ public class Mining {
             return new Commit(aux[0], Integer.parseInt(aux[1]));
         }
 
-        static public List<Commit> gitCommitHashList(Path pathDir) throws IOException, InterruptedException {
+        static public List<Commit> gitCommitHashList(Path pathDir, boolean onlyMergesCommits) throws IOException, InterruptedException {
             List<Commit> ret = new ArrayList();
-            Process process = Runtime.getRuntime().exec("git log --pretty=format:%H-%ct", null, new File(pathDir.toString()));
+            Process process = null;
+            if (onlyMergesCommits) {
+                process = Runtime.getRuntime().exec("git log --merges --pretty=format:%H-%ct", null, new File(pathDir.toString()));
+            } else {
+                process = Runtime.getRuntime().exec("git log --pretty=format:%H-%ct", null, new File(pathDir.toString()));
+            }
             StringBuilder output = new StringBuilder();
             StringBuilder error = new StringBuilder();
 
@@ -379,7 +416,6 @@ public class Mining {
 
             if (exitVal == 0 && error.toString().length() > 0) {
 
-                //System.out.println("Output: " + output.toString());
                 System.out.println("Error: " + error.toString());
 
             }
@@ -453,11 +489,7 @@ public class Mining {
             if (line != null) {
                 ret = Diff.parse(line);
             }
-            //while ((line = reader.readLine()) != null) {
-            //output.append(line + "\n");
-            //ret = Diff.parse(line);
-            //}
-
+            
             while ((line = stdError.readLine()) != null) {
                 error.append(line + "\n");
             }
@@ -486,9 +518,15 @@ public class Mining {
 
     }
 
-    static public List<String> gitCommitHashList(Path pathDir) throws IOException, InterruptedException {
+    static public List<String> gitCommitHashList(Path pathDir, boolean onlyMergesCommits) throws IOException, InterruptedException {
         List<String> ret = new ArrayList();
-        Process process = Runtime.getRuntime().exec("git log --pretty=format:%H", null, new File(pathDir.toString()));
+        Process process = null;
+        if (onlyMergesCommits) {
+            process = Runtime.getRuntime().exec("git log --merges --pretty=format:%H", null, new File(pathDir.toString()));
+        } else {
+            process = Runtime.getRuntime().exec("git log --pretty=format:%H", null, new File(pathDir.toString()));
+        }
+
         StringBuilder output = new StringBuilder();
         StringBuilder error = new StringBuilder();
 
@@ -545,7 +583,7 @@ public class Mining {
 
         if (exitVal == 0 && error.toString().length() > 0) {
 
-            System.out.println("Error: " + error.toString());
+            System.out.println("Info: " + error.toString());
             System.out.println("Output: " + output.toString());
 
         }
@@ -582,7 +620,7 @@ public class Mining {
 
             if (error.toString().length() > 0) {
 
-                System.out.println("Error: " + error.toString());
+                System.out.println("Info:\n" + error.toString());
 
             }
 

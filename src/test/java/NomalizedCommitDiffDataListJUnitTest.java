@@ -15,7 +15,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -52,10 +51,7 @@ public class NomalizedCommitDiffDataListJUnitTest {
 
             Mining.gitCloneRepository(urls.get(10), path);
 
-            //List<Mining.Commit> commits = Mining.Commit.gitCommitHashList(path);
-            //List<Mining.Diff> diffs = Mining.Diff.gitDiffShortstat(commits, path);
-
-            List<Mining.NomalizedCommitDiffData> list = Mining.NomalizedCommitDiffData.nomalizedCommitDiffDataList(path);
+            List<Mining.NomalizedCommitDiffData> list = Mining.NomalizedCommitDiffData.nomalizedCommitDiffDataList(path, false);
             List<Mining.NomalizedCommitDiffData> rlist = Mining.NomalizedCommitDiffData.reducednomalizedCommitDiffDataList(list);
             for (Mining.NomalizedCommitDiffData nomalizedCommitDiffData : rlist) {
                 System.out.println(nomalizedCommitDiffData);

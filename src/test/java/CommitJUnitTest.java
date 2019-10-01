@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 
+import com.jrmouro.gitmining.Commit;
 import com.jrmouro.gitmining.Mining;
 import java.io.IOException;
 import java.net.URL;
@@ -45,14 +46,11 @@ public class CommitJUnitTest {
     @Test
     public void test() throws IOException, InterruptedException, ParseException {
         Path path = Mining.getPath("temp");
-        Mining.deleteDir(path);
-        List<URL> urls = Mining.githubPublicRepositoriesUrl(1);
-        if (urls.size() > 0) {
-            Mining.gitCloneRepository(urls.get(10), path);
-            List<Mining.Commit> l = Mining.Commit.gitCommitHashList(path);
-            for (Mining.Commit commit : l) {
-                System.out.println(commit);
-            }            
-        }
+        Commit.gitCommitList(path, true).forEach((t) -> {
+            System.out.println(t.hash);
+            t.parents.forEach((rt) -> {
+                System.out.println("\t"+rt);
+            });
+        });
     }
 }

@@ -5,6 +5,7 @@
  */
 
 import com.jrmouro.gitmining.Mining;
+import com.jrmouro.gitmining.Polynom;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -21,30 +22,30 @@ import static org.junit.Assert.*;
  *
  * @author ronaldo
  */
-public class GitDiffShortstatJUnitTest {
-
-    public GitDiffShortstatJUnitTest() {
+public class PolYnomJUnitTest {
+    
+    public PolYnomJUnitTest() {
     }
-
+    
     @BeforeClass
     public static void setUpClass() {
     }
-
+    
     @AfterClass
     public static void tearDownClass() {
     }
-
+    
     @Before
     public void setUp() {
     }
-
+    
     @After
     public void tearDown() {
     }
 
     @Test
     public void test() throws IOException, InterruptedException, ParseException {
-
+    
         Path path = Mining.getPath("temp");
         Mining.deleteDir(path);
         List<URL> urls = Mining.githubPublicRepositoriesUrl(1);
@@ -52,14 +53,30 @@ public class GitDiffShortstatJUnitTest {
 
             Mining.gitCloneRepository(urls.get(10), path);
 
-            List<Mining.Commit> commits = Mining.Commit.gitCommitHashList(path, false);
-            List<Mining.Diff> diffs = Mining.Diff.gitDiffShortstat(commits, path);
-
-            for (Mining.Diff diff : diffs) {
-                System.out.println(diff);
+            List<Mining.NomalizedCommitDiffData> list = Mining.NomalizedCommitDiffData.nomalizedCommitDiffDataList(path, false);
+            List<Mining.NomalizedCommitDiffData> rlist = Mining.NomalizedCommitDiffData.reducednomalizedCommitDiffDataList(list);
+            
+            double[]f = new double[rlist.size()];
+            double[]x = new double[rlist.size()];
+            int i = 0;
+            
+            for (Mining.NomalizedCommitDiffData ncdd : rlist) {
+                System.out.println(ncdd);
+                f[i] = ncdd.changedFiles;
+                x[i++] = ncdd.time;
             }
+            
+            Mining.NomalizedCommitDiffData.CommitDiffPlot(rlist, Mining.getPath("script.plot"), Mining.getPath("data.txt"));
+            
+            
+            double[] p = Polynom.newton(f, x);
+            i = 0;
+            for (double d : p) {
+                System.out.print("(" + d + "*x^" + String.valueOf(i++) + ") + ");
+            }
+            
 
         }
-
+        
     }
 }
