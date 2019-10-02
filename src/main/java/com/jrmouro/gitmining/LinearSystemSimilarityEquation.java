@@ -42,5 +42,11 @@ public class LinearSystemSimilarityEquation{
         return this.list.add(e);
     }
     
+    public double[] getCoefficients(){
+        if(this.list.size() > 0)
+            return this.list.get(0).getWeights();
+        return null;
+    }
+    
     
 }

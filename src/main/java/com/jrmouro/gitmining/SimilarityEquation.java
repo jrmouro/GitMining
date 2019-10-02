@@ -49,4 +49,14 @@ public class SimilarityEquation{
         return this.list.add(e);
     }
     
+    
+    public double[] getWeights(){
+        double[] ret = new double[this.list.size()];
+        int i = 0;
+        for (WeightFunction weightFunction : this.list) {
+            ret[i++] = weightFunction.getWeight();
+        }
+        return ret;
+    }
+    
 }
