@@ -57,7 +57,7 @@ public class NomalizedCommitDiffDataListJUnitTest {
                 System.out.println(nomalizedCommitDiffData);
             }
             
-            Mining.NomalizedCommitDiffData.CommitDiffPlot(rlist, Mining.getPath("script.plot"), Mining.getPath("data.txt"));
+            Mining.NomalizedCommitDiffData.CommitDiffPlotSmoothBezier(rlist, Mining.getPath("script.plot"), Mining.getPath("data.txt"));
 
         }
         
