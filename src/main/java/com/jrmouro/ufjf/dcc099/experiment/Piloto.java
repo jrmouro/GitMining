@@ -70,13 +70,13 @@ public class Piloto implements Experiment{
             int i = 1;
             for (Project p : this.projectRef){      
                 Path path = Piloto.getPath(projRef, "ref" + String.valueOf(i++));
-                p.path = path;
-                Piloto.gitCloneRepository(p.url, p.path);
+                p.clonePath = path;
+                Piloto.gitCloneRepository(p.url, p.clonePath);
             }
              
             
             Piloto.gitCloneRepository(this.project.url, proj);
-            this.project.path = proj;
+            this.project.clonePath = proj;
             
             
             try {
@@ -176,7 +176,7 @@ public class Piloto implements Experiment{
         LinearSystemSimilarityEquation lsse = new LinearSystemSimilarityEquation();
                 
         for (Project p : projects) {
-            lsse.add(Piloto.getSE(p.result, p.url, p.path, functions));
+            lsse.add(Piloto.getSE(p.result, p.url, p.clonePath, functions));
         }
         
         return lsse;

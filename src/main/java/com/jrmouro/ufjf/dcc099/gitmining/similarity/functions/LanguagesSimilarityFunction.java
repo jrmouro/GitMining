@@ -14,6 +14,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -26,9 +28,23 @@ public class LanguagesSimilarityFunction extends RemoteSimilarityFunction{
     
     private double value = 0;
 
-    public LanguagesSimilarityFunction(List<String> concern, URL url) throws IOException, InterruptedException, ParseException {
-        super(url, concern);        
-        this.value = this.calcValue(concern, githubLanguages(url));        
+    public LanguagesSimilarityFunction(URL url, Object listConcern) throws IOException, InterruptedException, ParseException {
+        super(url, listConcern);   
+        
+        try {
+            if( listConcern instanceof List<?>)
+                if(((List<?>)listConcern).size() > 0)
+                    if(((List<?>)listConcern).get(0) instanceof String)  
+                        this.value = this.calcValue((List<String>)listConcern, githubLanguages(url));
+                    else
+                        throw new Exception("Empty Object");
+                else
+                    throw new Exception("Invalid List Item");
+            else
+                throw new Exception("Invalid Object");
+        } catch (Exception ex) {
+            Logger.getLogger(LanguagesSimilarityFunction.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     private double calcValue(List<String> concern, Map<String,Long> languages){
@@ -93,6 +109,8 @@ public class LanguagesSimilarityFunction extends RemoteSimilarityFunction{
                 System.out.println("Info:\n" + error.toString());
 
             }
+            
+            System.out.println("Languages:\n" + output.toString());
             
             JSONObject obj = (JSONObject) new JSONParser().parse(output.toString());
 

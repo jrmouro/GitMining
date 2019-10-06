@@ -20,8 +20,8 @@ public class MergeConflictsSimilarityFunction extends RepositorySimilarityFuncti
    
     private double value = 0;
 
-    public MergeConflictsSimilarityFunction(Path path) throws IOException, InterruptedException, ParseException {
-        super(path, null);
+    public MergeConflictsSimilarityFunction(Path path, Object obj) throws IOException, InterruptedException, ParseException {
+        super(path, obj);
         MergeConflicts mergeConflicts = MergeConflicts.gitCommitList(path);
         this.value = mergeConflicts.getConflictsRate();
     }
