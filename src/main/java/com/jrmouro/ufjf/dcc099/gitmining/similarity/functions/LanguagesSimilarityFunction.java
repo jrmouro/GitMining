@@ -5,7 +5,8 @@
  */
 package com.jrmouro.ufjf.dcc099.gitmining.similarity.functions;
 
-import com.jrmouro.ufjf.dcc099.gitmining.similarity.RemoteSimilarityFunction;
+import com.jrmouro.ufjf.dcc099.gitmining.project.Project;
+import com.jrmouro.ufjf.dcc099.gitmining.similarity.ProjectSimilarityFunction;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,18 +25,18 @@ import org.json.simple.parser.ParseException;
  *
  * @author ronaldo
  */
-public class LanguagesSimilarityFunction extends RemoteSimilarityFunction{
+public class LanguagesSimilarityFunction extends ProjectSimilarityFunction{
     
     private double value = 0;
 
-    public LanguagesSimilarityFunction(URL url, Object listConcern) throws IOException, InterruptedException, ParseException {
-        super(url, listConcern);   
+    public LanguagesSimilarityFunction(Project project, Object listConcern) throws IOException, InterruptedException, ParseException {
+        super(project, listConcern);   
         
         try {
             if( listConcern instanceof List<?>)
                 if(((List<?>)listConcern).size() > 0)
                     if(((List<?>)listConcern).get(0) instanceof String)  
-                        this.value = this.calcValue((List<String>)listConcern, githubLanguages(url));
+                        this.value = this.calcValue((List<String>)listConcern, githubLanguages(new URL((String)project.getJsonObject().get("languages_url"))));
                     else
                         throw new Exception("Empty Object");
                 else

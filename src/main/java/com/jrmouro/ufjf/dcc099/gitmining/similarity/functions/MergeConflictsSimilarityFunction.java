@@ -6,23 +6,23 @@
 package com.jrmouro.ufjf.dcc099.gitmining.similarity.functions;
 
 import com.jrmouro.ufjf.dcc099.gitmining.MergeConflicts;
-import com.jrmouro.ufjf.dcc099.gitmining.similarity.RepositorySimilarityFunction;
+import com.jrmouro.ufjf.dcc099.gitmining.project.Project;
+import com.jrmouro.ufjf.dcc099.gitmining.similarity.ProjectSimilarityFunction;
 import java.io.IOException;
-import java.nio.file.Path;
 import org.json.simple.parser.ParseException;
 
 /**
  *
  * @author ronaldo
  */
-public class MergeConflictsSimilarityFunction extends RepositorySimilarityFunction{
+public class MergeConflictsSimilarityFunction extends ProjectSimilarityFunction{
     
    
     private double value = 0;
 
-    public MergeConflictsSimilarityFunction(Path path, Object obj) throws IOException, InterruptedException, ParseException {
-        super(path, obj);
-        MergeConflicts mergeConflicts = MergeConflicts.gitCommitList(path);
+    public MergeConflictsSimilarityFunction(Project project, Object obj) throws IOException, InterruptedException, ParseException {
+        super(project, obj);
+        MergeConflicts mergeConflicts = MergeConflicts.gitCommitList(project.getClonePath());
         this.value = mergeConflicts.getConflictsRate();
     }
 

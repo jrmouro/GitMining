@@ -6,11 +6,13 @@
 package com.jrmouro.ufjf.dcc099.experiment;
 
 
+import com.jrmouro.ufjf.dcc099.gitmining.project.Project;
 import com.jrmouro.genetic.evolutionstrategies.chromosome.ChromosomeAbstract;
 import com.jrmouro.genetic.evolutionstrategies.chromosome.ChromosomeDouble;
 import com.jrmouro.genetic.evolutionstrategies.chromosome.ChromosomeOne;
 import com.jrmouro.genetic.evolutionstrategies.evolution.EvolutionScoutSniffer;
 import com.jrmouro.genetic.evolutionstrategies.fitnessfunction.FitnessFunction;
+import com.jrmouro.ufjf.dcc099.gitmining.canonicalPath.CanonicalPath;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.FactorySimilarytyFunction;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.LinearSystemSimilarityEquation;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.ParamClassFunction;
@@ -21,7 +23,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -58,25 +59,22 @@ public class Piloto implements Experiment{
         try {
             
             //prepara os diretórios temporários para clonagem
-            Piloto.deleteDir("temp");
-            Piloto.createDir("temp");
-            final Path projRef = Paths.get(Piloto.getPathFromCanonical("temp").toString() + "/projRef");
-            final Path proj = Paths.get(Piloto.getPathFromCanonical("temp").toString() + "/proj");
-            Piloto.createDir(projRef);
+            CanonicalPath.deleteDir("temp");
+            CanonicalPath.createDir("temp");
+            final Path projRef = Paths.get(CanonicalPath.getPath("temp").toString() + "/projRef");
+            final Path proj = Paths.get(CanonicalPath.getPath("temp").toString() + "/proj");
+            CanonicalPath.createDir(projRef);
             
             
             
             //Clona os repositórios
             int i = 1;
             for (Project p : this.projectRef){      
-                Path path = Piloto.getPath(projRef, "ref" + String.valueOf(i++));
-                p.clonePath = path;
-                Piloto.gitCloneRepository(p.url, p.clonePath);
+                Path path = Paths.get(projRef.toString(), "ref" + String.valueOf(i++));
+                p.clone(path);
             }
-             
-            
-            Piloto.gitCloneRepository(this.project.url, proj);
-            this.project.clonePath = proj;
+                                     
+            project.clone(proj);
             
             
             try {
@@ -120,8 +118,6 @@ public class Piloto implements Experiment{
             
         } catch (IOException ex) {
             Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -135,34 +131,35 @@ public class Piloto implements Experiment{
         
         String languages = "com.jrmouro.ufjf.dcc099.gitmining.similarity.functions.LanguagesSimilarityFunction";
         List<String> languagesParam = new ArrayList();
-        languagesParam.add("C");
-        languagesParam.add("Python");
+        languagesParam.add("JavaScript");
+        languagesParam.add("Ruby");
         
         List<ParamClassFunction> funcoes = new ArrayList();
-        funcoes.add(new ParamClassFunction(null, Class.forName(mergeConflicts)));
-        funcoes.add(new ParamClassFunction(languagesParam, Class.forName(languages)));
+        funcoes.add(new ParamClassFunction(Class.forName(mergeConflicts), null));
+        funcoes.add(new ParamClassFunction(Class.forName(languages), languagesParam));
         
         //Projetos de referência
         
-        URL spark = new URL("https://github.com/apache/spark");
-        URL gson = new URL("https://github.com/google/gson");        
-        URL image = new URL("https://github.com/google/image-compression");
+        URL url1 = new URL("https://api.github.com/repos/jamesgolick/resource_controller");
+        URL url2 = new URL("https://api.github.com/repos/defunkt/zippy");        
+        URL url3 = new URL("https://api.github.com/repos/danwrong/low-pro-for-jquery");
         
         List<Project> projectList = new ArrayList();
-        //projectList.add(new Project(spark, 1.0)); //comentei pq é um projeto grande e demora baixar
-        projectList.add(new Project(gson, 0.8));
-        projectList.add(new Project(image, 0.7));
+        projectList.add(new Project(url1, 1.0, true)); 
+        projectList.add(new Project(url2, 0.8, true));
+        projectList.add(new Project(url3, 0.7, true));
         
         
         
         //Projeto a ser analisado
         
-        URL gitMining = new URL("https://github.com/jrmouro/GitMining");
+        URL gitMining = new URL("https://api.github.com/repos/jrmouro/GitMining");
         
         
         //Experimento "Piloto"
         
-        Piloto piloto = new Piloto(funcoes, projectList, new Project(gitMining));
+        Piloto piloto = new Piloto(funcoes, projectList, new Project(gitMining, true));
+        
         piloto.run();
         
         
@@ -176,122 +173,26 @@ public class Piloto implements Experiment{
         LinearSystemSimilarityEquation lsse = new LinearSystemSimilarityEquation();
                 
         for (Project p : projects) {
-            lsse.add(Piloto.getSE(p.result, p.url, p.clonePath, functions));
+            lsse.add(Piloto.getSE(p, functions));
         }
         
         return lsse;
         
     }
     
-    private static SimilarityEquation getSE(double b, URL url, Path path, List<ParamClassFunction> functions) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+    private static SimilarityEquation getSE(Project project, List<ParamClassFunction> functions) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
         
-        SimilarityEquation ret = new SimilarityEquation(b); 
+        SimilarityEquation ret = new SimilarityEquation(project.result); 
         
         String pack = "com.jrmouro.ufjf.dcc099.gitmining.similarity.";
         
         for (ParamClassFunction function : functions) {
-            SimilarityFunction sf = FactorySimilarytyFunction.getSimilarityFunction(function, url, path);
+            SimilarityFunction sf = FactorySimilarytyFunction.getSimilarityFunction(function, project);
             if(sf != null)
                 ret.add(new WeightFunction(sf));
         }
         
         return ret;
-    }
-    
-        
-    static public Path getPathFromCanonical(String name) throws IOException {
-        String aux = new File(".").getCanonicalPath();
-        return Paths.get(aux + "/" + name);
-    }
-    
-    static public Path getPath(Path path, String name) throws IOException {
-        return Paths.get(path.toString() + "/" + name);
-    }
-
-    static public boolean deleteTempDir() throws IOException {
-
-        return deleteDir("temp");
-    }
-
-    static public boolean deleteDir(String name) throws IOException {
-
-        String aux = new File(".").getCanonicalPath();
-        Path baseTempPath = Paths.get(aux + "/" + name);
-
-        return deleteDir(baseTempPath);
-    }
-
-    static public boolean deleteDir(Path path) throws IOException {
-
-        if (Files.exists(path)) {
-            FileUtils.deleteDirectory(new File(path.toString()));
-            return true;
-        }
-
-        return false;
-    }
-
-    static public String createTempDir() throws IOException {
-
-        return createDir("temp");
-
-    }
-
-    static public String createDir(String name) throws IOException {
-
-        String aux = new File(".").getCanonicalPath();
-
-        Path baseTempPath = Paths.get(aux + "/" + name);
-
-        return createDir(baseTempPath);
-
-    }
-
-    static public String createDir(Path path) throws IOException {
-
-        if (!Files.exists(path)) {
-            File file = new File(path.toString());
-            boolean result = file.mkdirs();
-            if (result) {
-                return file.getAbsolutePath();
-            }
-        }
-
-        return null;
-
-    }
-    
-    static public void gitCloneRepository(URL url, Path pathDir) throws IOException, InterruptedException {
-
-        Process process = Runtime.getRuntime().exec("git clone " + url.toString() + " " + pathDir.toString());
-
-        StringBuilder output = new StringBuilder();
-        StringBuilder error = new StringBuilder();
-
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(process.getInputStream()));
-
-        BufferedReader stdError = new BufferedReader(
-                new InputStreamReader(process.getErrorStream()));
-
-        String line;
-        while ((line = reader.readLine()) != null) {
-            output.append(line + "\n");
-        }
-
-        while ((line = stdError.readLine()) != null) {
-            error.append(line + "\n");
-        }
-
-        int exitVal = process.waitFor();
-
-        if (exitVal == 0 && error.toString().length() > 0) {
-
-            System.out.println("Info: " + error.toString());
-            System.out.println("Output: " + output.toString());
-
-        }
-
     }
     
 }

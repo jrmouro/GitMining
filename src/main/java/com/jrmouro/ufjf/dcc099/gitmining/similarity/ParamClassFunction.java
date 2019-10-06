@@ -15,7 +15,7 @@ public class ParamClassFunction {
 
     final Class classFunction;
 
-    public ParamClassFunction(Object param, Class classFunction) {
+    public ParamClassFunction(Class classFunction, Object param) {
         this.param = param;
         this.classFunction = classFunction;
     }

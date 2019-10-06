@@ -5,6 +5,8 @@
  */
 package com.jrmouro.ufjf.dcc099.gitmining.similarity;
 
+import com.jrmouro.ufjf.dcc099.gitmining.project.Project;
+
 /**
  *
  * @author ronaldo
@@ -13,5 +15,6 @@ public interface SimilarityFunction {
     
     public Double getValue();
     public Object getParam();
+    public Project getProject();
     
 }
