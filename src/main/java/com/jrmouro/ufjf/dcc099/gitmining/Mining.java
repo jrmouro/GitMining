@@ -166,8 +166,8 @@ public class Mining {
             CommitDiffDataPlotFile(aux, data);
             CommitDiffPlot(script);
         }
-        
-          static public void CommitDiffPlot(List<NomalizedCommitDiffData> aux, Path script, Path data) throws IOException, InterruptedException {
+
+        static public void CommitDiffPlot(List<NomalizedCommitDiffData> aux, Path script, Path data) throws IOException, InterruptedException {
             CommitDiffDataPlotScript(script, data);
             CommitDiffDataPlotFile(aux, data);
             CommitDiffPlot(script);
@@ -489,7 +489,7 @@ public class Mining {
             if (line != null) {
                 ret = Diff.parse(line);
             }
-            
+
             while ((line = stdError.readLine()) != null) {
                 error.append(line + "\n");
             }
@@ -639,6 +639,54 @@ public class Mining {
                 }
 
             });
+
+        }
+
+        return ret;
+
+    }
+
+    static public Map<String, Long> githubLanguages(URL url) throws IOException, InterruptedException, ParseException {
+
+        Map<String, Long> ret = new HashMap();
+
+        Process process = Runtime.getRuntime().exec("curl " + url.toString());
+
+        StringBuilder output = new StringBuilder();
+        StringBuilder error = new StringBuilder();
+
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(process.getInputStream()));
+
+        BufferedReader stdError = new BufferedReader(
+                new InputStreamReader(process.getErrorStream()));
+
+        String line;
+        while ((line = reader.readLine()) != null) {
+            output.append(line + "\n");
+        }
+
+        while ((line = stdError.readLine()) != null) {
+            error.append(line + "\n");
+        }
+
+        int exitVal = process.waitFor();
+
+        if (exitVal == 0) {
+
+            if (error.toString().length() > 0) {
+
+                System.out.println("Info:\n" + error.toString());
+
+            }
+            
+            JSONObject obj = (JSONObject) new JSONParser().parse(output.toString());
+
+            obj.forEach((t, u) -> {
+                ret.put((String)t, (Long)u);
+            });
+
+            
 
         }
 

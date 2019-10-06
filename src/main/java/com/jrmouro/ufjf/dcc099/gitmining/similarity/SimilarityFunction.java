@@ -12,5 +12,6 @@ package com.jrmouro.ufjf.dcc099.gitmining.similarity;
 public interface SimilarityFunction {
     
     public Double getValue();
+    public Object getParam();
     
 }

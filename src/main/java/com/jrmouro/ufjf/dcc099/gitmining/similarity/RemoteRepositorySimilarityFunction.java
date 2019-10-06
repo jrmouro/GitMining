@@ -16,9 +16,11 @@ public abstract class RemoteRepositorySimilarityFunction extends RepositorySimil
     
     protected URL url;
 
-    public RemoteRepositorySimilarityFunction(URL url, Path path) {
-        super(path);
+    public RemoteRepositorySimilarityFunction(URL url, Path path, Object param) {
+        super(path, param);
         this.url = url;
     }
+
+    
     
 }

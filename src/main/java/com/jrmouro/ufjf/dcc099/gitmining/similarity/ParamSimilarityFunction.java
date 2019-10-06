@@ -5,21 +5,20 @@
  */
 package com.jrmouro.ufjf.dcc099.gitmining.similarity;
 
-import java.nio.file.Path;
-
 /**
  *
  * @author ronaldo
  */
-public abstract class RepositorySimilarityFunction extends ParamSimilarityFunction{
+public abstract class ParamSimilarityFunction implements SimilarityFunction{
     
-    final protected Path path;
+    final private Object param;
 
-    public RepositorySimilarityFunction(Path path, Object param) {
-        super(param);
-        this.path = path;
+    public ParamSimilarityFunction(Object param) {
+        this.param = param;
     }
 
-        
-    
+    @Override
+    public Object getParam() {
+        return this.param;
+    }
 }

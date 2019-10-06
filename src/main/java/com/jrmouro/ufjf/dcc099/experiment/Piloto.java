@@ -5,12 +5,14 @@
  */
 package com.jrmouro.ufjf.dcc099.experiment;
 
-import com.jrmouro.ufjf.dcc099.genetic.evolutionstrategies.ChromosomeAbstract;
-import com.jrmouro.ufjf.dcc099.genetic.evolutionstrategies.ChromosomeDouble;
-import com.jrmouro.ufjf.dcc099.genetic.evolutionstrategies.ChromosomeOne;
-import com.jrmouro.ufjf.dcc099.genetic.evolutionstrategies.EvolutionScoutSniffer;
-import com.jrmouro.ufjf.dcc099.genetic.evolutionstrategies.FitnessFunction;
+
+import com.jrmouro.genetic.evolutionstrategies.chromosome.ChromosomeAbstract;
+import com.jrmouro.genetic.evolutionstrategies.chromosome.ChromosomeDouble;
+import com.jrmouro.genetic.evolutionstrategies.chromosome.ChromosomeOne;
+import com.jrmouro.genetic.evolutionstrategies.evolution.EvolutionScoutSniffer;
+import com.jrmouro.genetic.evolutionstrategies.fitnessfunction.FitnessFunction;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.LinearSystemSimilarityEquation;
+import com.jrmouro.ufjf.dcc099.gitmining.similarity.ParamClassFunction;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.SimilarityEquation;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.SimilarityFunction;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.WeightFunction;
@@ -37,13 +39,14 @@ import org.apache.commons.io.FileUtils;
  */
 public class Piloto implements Experiment{
     
-    private final List<Class> functions;
+    private final List<ParamClassFunction> paramclassFunctions;
+    private final List<Object> params;
     public final List<Project> projectRef;
     public final Project project;
     private LinearSystemSimilarityEquation lsse;
 
-    public Piloto(List<Class> functions, List<Project> projectRef, Project project) {
-        this.functions = functions;
+    public Piloto(List<ParamClassFunction> paramclassFunctions, List<Project> projectRef, Project project) {
+        this.paramclassFunctions = paramclassFunctions;
         this.projectRef = projectRef;
         this.project = project;
     }
@@ -78,13 +81,13 @@ public class Piloto implements Experiment{
             
             // Gera o Sistema de Equações de Similaridade
             
-            lsse = Piloto.getLSSE(projectRef, functions);
+            lsse = Piloto.getLSSE(null, projectRef, functions);
             
             // FitnessFunction
             
             FitnessFunction<Double> fitness = new FitnessFunction<Double>(){ 
                 @Override
-                public double fitness(ChromosomeAbstract<Double> chromosome) {
+                public Double fitness(ChromosomeAbstract<Double> chromosome) {
                     
                     lsse.setWeights(chromosome.getRepresentation());
                     
@@ -127,7 +130,7 @@ public class Piloto implements Experiment{
         //Funções de Sililaridade
         
         String mergeConflicts = "com.jrmouro.ufjf.dcc099.gitmining.similarity.functions.MergeConflictsSimilarityFunction";
-        
+        String languages = "com.jrmouro.ufjf.dcc099.gitmining.similarity.functions.LanguagesSimilarityFunction";
         
         List<Class> funcoes = new ArrayList();
         funcoes.add(Class.forName(mergeConflicts));
@@ -161,20 +164,23 @@ public class Piloto implements Experiment{
         
     //funções auxiliares
     
-    private static LinearSystemSimilarityEquation getLSSE(List<Project> projects, List<Class> functions) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+    private static LinearSystemSimilarityEquation getLSSE(List<Object> functionParams, List<Project> projects, List<Class> functions) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
         
         LinearSystemSimilarityEquation lsse = new LinearSystemSimilarityEquation();
         
         int i = 0;
         for (Project p : projects) {
-            lsse.add(Piloto.getSE(p.result, p.url, p.path, functions));
+            if(functionParams == null)
+                lsse.add(Piloto.getSE(null, p.result, p.url, p.path, functions));
+            else
+                lsse.add(Piloto.getSE(functionParams.get(i++), p.result, p.url, p.path, functions));
         }
         
         return lsse;
         
     }
     
-    private static SimilarityEquation getSE(double b, URL url, Path path, List<Class> functions) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+    private static SimilarityEquation getSE(Object param,  double b, URL url, Path path, List<Class> functions) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
         
         SimilarityEquation ret = new SimilarityEquation(b); 
         
@@ -184,9 +190,11 @@ public class Piloto implements Experiment{
             if(function.getSuperclass()== Class.forName(pack+"RepositorySimilarityFunction"))
                 ret.add(Piloto.getWF(path, function));
             else if(function.getSuperclass()== Class.forName(pack+"RemoteSimilarityFunction"))
-                ret.add(Piloto.getWF(url, path, function));
+                ret.add(Piloto.getWF(url, function));
             else if(function.getSuperclass()== Class.forName(pack+"RemoteRepositorySimilarityFunction"))
                 ret.add(Piloto.getWF(url, path, function));
+            else if(function.getSuperclass()== Class.forName(pack+"ParamRemoteSimilarityFunction"))
+                ret.add(Piloto.getWF(param, url,function));
         }
         
         return ret;
@@ -199,6 +207,18 @@ public class Piloto implements Experiment{
         Constructor ct = classe.getDeclaredConstructor(cArg);
         ct.setAccessible(true);
         SimilarityFunction sf = (SimilarityFunction)ct.newInstance(url);
+        
+        return new WeightFunction(sf);
+    }
+    
+    private static WeightFunction getWF(Object param, URL url, Class classe) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+        
+        Class[] cArg = new Class[12];
+        cArg[0] = Object.class; 
+        cArg[1] = URL.class;       
+        Constructor ct = classe.getDeclaredConstructor(cArg);
+        ct.setAccessible(true);
+        SimilarityFunction sf = (SimilarityFunction)ct.newInstance(param, url);
         
         return new WeightFunction(sf);
     }

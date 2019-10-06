@@ -5,8 +5,6 @@
  */
 package com.jrmouro.ufjf.dcc099.gitmining.similarity;
 
-import com.jrmouro.ufjf.dcc099.gitmining.similarity.SimilarityFunction;
-
 /**
  *
  * @author ronaldo

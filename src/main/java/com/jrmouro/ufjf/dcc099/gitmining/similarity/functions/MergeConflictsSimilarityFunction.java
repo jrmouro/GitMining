@@ -21,7 +21,7 @@ public class MergeConflictsSimilarityFunction extends RepositorySimilarityFuncti
     private double value = 0;
 
     public MergeConflictsSimilarityFunction(Path path) throws IOException, InterruptedException, ParseException {
-        super(path);
+        super(path, null);
         MergeConflicts mergeConflicts = MergeConflicts.gitCommitList(path);
         this.value = mergeConflicts.getConflictsRate();
     }
@@ -30,5 +30,12 @@ public class MergeConflictsSimilarityFunction extends RepositorySimilarityFuncti
     public Double getValue() {
         return this.value;
     }
+
+    @Override
+    public Object getParam() {
+        return null;
+    }
+    
+    
     
 }
