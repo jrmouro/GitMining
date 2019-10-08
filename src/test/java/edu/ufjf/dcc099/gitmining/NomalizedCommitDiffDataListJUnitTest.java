@@ -6,7 +6,7 @@ package edu.ufjf.dcc099.gitmining;
  * and open the template in the editor.
  */
 
-import com.jrmouro.ufjf.dcc099.gitmining.Mining;
+import com.jrmouro.ufjf.dcc099.gitmining.mining.Mining;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;

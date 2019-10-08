@@ -3,8 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jrmouro.ufjf.dcc099.gitmining;
+package com.jrmouro.ufjf.dcc099.gitmining.mining;
 
+import com.jrmouro.ufjf.dcc099.gitmining.mining.Diff;
+import com.jrmouro.ufjf.dcc099.gitmining.mining.Commits;
+import com.jrmouro.ufjf.dcc099.gitmining.mining.MergeConflicts;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -21,18 +24,29 @@ import org.json.simple.parser.ParseException;
  * @author ronaldo
  */
 public class Commit {
-    
+    final public Path pathDir;
     final public String hash, author, email;
     final public Integer date;
     final public List<String> parents;
     private boolean conflict = false;
 
-    public Commit(String hash, String author, String email, Integer date, List<String> parents) {
+    public Commit(Path pathDir, String hash, String author, String email, Integer date, List<String> parents) {
         this.hash = hash;
         this.author = author;
         this.email = email;
         this.date = date;
         this.parents = parents;
+        this.pathDir = pathDir;
+    }
+    
+    public Double getDiffCommitDeletionsRate(Commit commit) throws IOException, InterruptedException{
+        Diff diff = Diff.gitDiff(this, commit, pathDir);
+        return diff.getNrChangedFilesNrDeletionsRate();
+    }
+    
+    public Double getDiffCommitInsertionsRate(Commit commit) throws IOException, InterruptedException{
+        Diff diff = Diff.gitDiff(this, commit, pathDir);
+        return diff.getNrChangedFilesNrInsertionsRate();
     }
     
     public void setConflict(MergeConflicts conflicts){
@@ -60,25 +74,26 @@ public class Commit {
         for (String parent : this.parents) {
             parents.add(parent);
         }        
-        return new Commit(this.hash, this.author, this.email, this.date, parents);
+        return new Commit(this.pathDir, this.hash, this.author, this.email, this.date, parents);
     }
     
     
-    static public Commit parse(String data) throws ParseException{
+    static public Commit parse(Path pathDir, String data) throws ParseException{
         List<String> parents = new ArrayList();
         JSONObject jo = (JSONObject) new JSONParser().parse(data); 
         String[] p = ((String)jo.get("parents")).split(" ");
         for (String s : p)
             parents.add(s);
-        return new Commit(  (String)jo.get("hash"), 
+        return new Commit(  pathDir,
+                            (String)jo.get("hash"), 
                             (String)jo.get("author"), 
                             (String)jo.get("email"), 
                             Integer.parseInt((String)jo.get("date")), parents);
     }
     
-    static public List<Commit> gitCommitList(Path pathDir, boolean onlyMergesCommits) throws IOException, InterruptedException, ParseException {
+    static public Commits gitCommitList(Path pathDir, boolean onlyMergesCommits) throws IOException, InterruptedException, ParseException {
         
-        List<Commit> ret = new ArrayList();
+        Commits ret = new Commits(pathDir);
         
         String command;
         if (onlyMergesCommits) {
@@ -100,7 +115,7 @@ public class Commit {
         String line;
         
         while ((line = reader.readLine()) != null)            
-            ret.add(parse(line));
+            ret.add(parse(pathDir, line));
         
 
         while ((line = stdError.readLine()) != null)
@@ -136,8 +151,7 @@ public class Commit {
                 }
             }
 
-        }
-        
+        }        
         
         return ret;
     }

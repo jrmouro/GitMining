@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jrmouro.ufjf.dcc099.gitmining;
+package com.jrmouro.ufjf.dcc099.gitmining.mining;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,7 +42,7 @@ public class MergeConflicts extends ArrayList<String>{
         return nrMergeConflicts;
     }
     
-    public Double getConflictsRate(){
+    public Double getNrMergeConflictsNrMergeCommitsRate(){
         if(this.nrMergeCommits == 0)
             return 0.0;
         return Double.valueOf(this.nrMergeConflicts)/Double.valueOf(this.nrMergeCommits);
@@ -54,6 +54,15 @@ public class MergeConflicts extends ArrayList<String>{
             commit.setConflict(conflicts);
         }
         
+    }
+    
+    static public void setConflictCommits(Commits commits, MergeConflicts conflicts){
+            
+        
+        for (int i = 0; i < commits.size(); i++) {
+            commits.get(i).setConflict(conflicts);
+        }
+                
     }
     
     static public List<Commit> getConflictCommitList(List<Commit> commitList, MergeConflicts conflicts) throws CloneNotSupportedException{
@@ -74,7 +83,7 @@ public class MergeConflicts extends ArrayList<String>{
         return ret;
     }
     
-    static public MergeConflicts gitCommitList(Path pathDir) throws IOException, InterruptedException, ParseException {
+    static public MergeConflicts gitMergeConflicts(Path pathDir) throws IOException, InterruptedException, ParseException {
         
         MergeConflicts ret = new MergeConflicts();
         
@@ -109,7 +118,7 @@ public class MergeConflicts extends ArrayList<String>{
         
 
         while ((line = stdError.readLine()) != null)
-            error.append(line + "\n");
+            error.append(line).append("\n");
         
 
         int exitVal = process.waitFor();

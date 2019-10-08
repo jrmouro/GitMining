@@ -6,8 +6,10 @@ package edu.ufjf.dcc099.gitmining;
  * and open the template in the editor.
  */
 
-import com.jrmouro.ufjf.dcc099.gitmining.Mining;
-import com.jrmouro.ufjf.dcc099.gitmining.Polynom;
+import com.jrmouro.ufjf.dcc099.gitmining.mining.Mining;
+import com.jrmouro.ufjf.dcc099.gitmining.mining.NomalizedCommitDiffData;
+import com.jrmouro.ufjf.dcc099.gitmining.polynom.Polynom;
+import com.jrmouro.ufjf.dcc099.gitmining.project.Project;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -18,7 +20,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -53,25 +54,25 @@ public class PolYnomJUnitTest {
         List<URL> urls = Mining.githubPublicRepositoriesUrl(1);
         if (urls.size() > 0) {
 
-            Mining.gitCloneRepository(urls.get(10), path);
+            Project.gitCloneRepository(urls.get(10), path);
 
-            List<Mining.NomalizedCommitDiffData> list = Mining.NomalizedCommitDiffData.nomalizedCommitDiffDataList(path, false);
-            List<Mining.NomalizedCommitDiffData> rlist = Mining.NomalizedCommitDiffData.reducednomalizedCommitDiffDataList(list);
+            List<NomalizedCommitDiffData> list = NomalizedCommitDiffData.nomalizedCommitDiffDataList(path, false);
+            List<NomalizedCommitDiffData> rlist = NomalizedCommitDiffData.reducednomalizedCommitDiffDataList(list);
             
             double[]f = new double[rlist.size()];
             double[]x = new double[rlist.size()];
             int i = 0;
             
-            for (Mining.NomalizedCommitDiffData ncdd : rlist) {
+            for (NomalizedCommitDiffData ncdd : rlist) {
                 System.out.println(ncdd);
                 f[i] = ncdd.changedFiles;
-                x[i++] = ncdd.time;
+                x[i++] = ncdd.ElapsedTime;
             }
             
-            Mining.NomalizedCommitDiffData.CommitDiffPlot(rlist, Mining.getPath("script.plot"), Mining.getPath("data.txt"));
+            NomalizedCommitDiffData.CommitDiffPlot(rlist, Mining.getPath("script.plot"), Mining.getPath("data.txt"));
             
             
-            double[] p = Polynom.newton(f, x);
+            double[] p = Polynom.polynom(f, x);
             i = 0;
             for (double d : p) {
                 System.out.print("(" + d + "*x^" + String.valueOf(i++) + ") + ");

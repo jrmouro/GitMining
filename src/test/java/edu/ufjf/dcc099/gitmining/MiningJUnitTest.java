@@ -1,16 +1,16 @@
-package edu.ufjf.dcc099.gitmining;
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+package edu.ufjf.dcc099.gitmining;
 
-import java.io.File;
+import com.jrmouro.ufjf.dcc099.gitmining.canonicalPath.CanonicalPath;
+import com.jrmouro.ufjf.dcc099.gitmining.mining.Mining;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.apache.commons.io.FileUtils;
+import org.json.simple.parser.ParseException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -22,9 +22,9 @@ import static org.junit.Assert.*;
  *
  * @author ronaldo
  */
-public class DeleteDirJUnitTest {
+public class MiningJUnitTest {
     
-    public DeleteDirJUnitTest() {
+    public MiningJUnitTest() {
     }
     
     @BeforeClass
@@ -44,10 +44,17 @@ public class DeleteDirJUnitTest {
     }
 
     @Test
-    public void hello() throws IOException {
-        String aux = new File(".").getCanonicalPath();
-        Path baseTempPath = Paths.get(aux + "/temp");
-        FileUtils.deleteDirectory(new File(baseTempPath.toString()));
-    }
+    public void test() throws IOException, InterruptedException, ParseException {
     
+        Path path = CanonicalPath.getPath("temp");
+        URL url = new URL("https://api.github.com/repos/jrmouro/GitMining");
+        Mining mining = new Mining(path, url);
+        
+        
+        
+        
+    
+        
+        
+    }
 }

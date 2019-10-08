@@ -5,7 +5,7 @@
  */
 package com.jrmouro.ufjf.dcc099.gitmining.similarity.functions;
 
-import com.jrmouro.ufjf.dcc099.gitmining.MergeConflicts;
+import com.jrmouro.ufjf.dcc099.gitmining.mining.MergeConflicts;
 import com.jrmouro.ufjf.dcc099.gitmining.project.Project;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.ProjectSimilarityFunction;
 import java.io.IOException;
@@ -22,8 +22,8 @@ public class MergeConflictsSimilarityFunction extends ProjectSimilarityFunction{
 
     public MergeConflictsSimilarityFunction(Project project, Object obj) throws IOException, InterruptedException, ParseException {
         super(project, obj);
-        MergeConflicts mergeConflicts = MergeConflicts.gitCommitList(project.getClonePath());
-        this.value = mergeConflicts.getConflictsRate();
+        MergeConflicts mergeConflicts = MergeConflicts.gitMergeConflicts(project.getClonePath());
+        this.value = mergeConflicts.getNrMergeConflictsNrMergeCommitsRate();
     }
 
     @Override

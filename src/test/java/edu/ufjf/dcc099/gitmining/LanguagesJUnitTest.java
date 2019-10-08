@@ -5,7 +5,7 @@
  */
 package edu.ufjf.dcc099.gitmining;
 
-import com.jrmouro.ufjf.dcc099.gitmining.Mining;
+import com.jrmouro.ufjf.dcc099.gitmining.mining.Mining;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;

@@ -7,18 +7,12 @@ package com.jrmouro.ufjf.dcc099.gitmining.similarity.functions;
 
 import com.jrmouro.ufjf.dcc099.gitmining.project.Project;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.ProjectSimilarityFunction;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 /**
@@ -36,7 +30,7 @@ public class LanguagesSimilarityFunction extends ProjectSimilarityFunction{
             if( listConcern instanceof List<?>)
                 if(((List<?>)listConcern).size() > 0)
                     if(((List<?>)listConcern).get(0) instanceof String)  
-                        this.value = this.calcValue((List<String>)listConcern, githubLanguages(new URL((String)project.getJsonObject().get("languages_url"))));
+                        this.value = this.calcValue((List<String>)listConcern, project.mining.getGithubLanguages());
                     else
                         throw new Exception("Empty Object");
                 else
@@ -74,57 +68,6 @@ public class LanguagesSimilarityFunction extends ProjectSimilarityFunction{
     @Override
     public Double getValue() {
         return this.value;
-    }
-    
-    
-    static public Map<String, Long> githubLanguages(URL url) throws IOException, InterruptedException, ParseException {
-
-        Map<String, Long> ret = new HashMap();
-
-        Process process = Runtime.getRuntime().exec("curl " + url.toString());
-
-        StringBuilder output = new StringBuilder();
-        StringBuilder error = new StringBuilder();
-
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(process.getInputStream()));
-
-        BufferedReader stdError = new BufferedReader(
-                new InputStreamReader(process.getErrorStream()));
-
-        String line;
-        while ((line = reader.readLine()) != null) {
-            output.append(line + "\n");
-        }
-
-        while ((line = stdError.readLine()) != null) {
-            error.append(line + "\n");
-        }
-
-        int exitVal = process.waitFor();
-
-        if (exitVal == 0) {
-
-            if (error.toString().length() > 0) {
-
-                System.out.println("Info:\n" + error.toString());
-
-            }
-            
-            System.out.println("Languages:\n" + output.toString());
-            
-            JSONObject obj = (JSONObject) new JSONParser().parse(output.toString());
-
-            obj.forEach((t, u) -> {
-                ret.put((String)t, (Long)u);
-            });
-
-            
-
-        }
-
-        return ret;
-
     }
     
 }

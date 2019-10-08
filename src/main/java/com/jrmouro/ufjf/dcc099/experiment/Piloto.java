@@ -19,21 +19,17 @@ import com.jrmouro.ufjf.dcc099.gitmining.similarity.ParamClassFunction;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.SimilarityEquation;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.SimilarityFunction;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.WeightFunction;
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.FileUtils;
+import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -50,8 +46,7 @@ public class Piloto implements Experiment{
         this.paramclassFunctions = paramclassFunctions;
         this.projectRef = projectRef;
         this.project = project;
-    }
-        
+    }       
     
 
     @Override
@@ -62,19 +57,23 @@ public class Piloto implements Experiment{
             CanonicalPath.deleteDir("temp");
             CanonicalPath.createDir("temp");
             final Path projRef = Paths.get(CanonicalPath.getPath("temp").toString() + "/projRef");
-            final Path proj = Paths.get(CanonicalPath.getPath("temp").toString() + "/proj");
+            project.clonePath = Paths.get(CanonicalPath.getPath("temp").toString() + "/proj");
             CanonicalPath.createDir(projRef);
             
             
             
-            //Clona os repositórios
+            //Minera os repositórios
+            
+            project.mine(true);
+            
+            
             int i = 1;
             for (Project p : this.projectRef){      
-                Path path = Paths.get(projRef.toString(), "ref" + String.valueOf(i++));
-                p.clone(path);
+                p.clonePath = Paths.get(projRef.toString(), "ref" + String.valueOf(i++));
+                p.mine(true);
             }
                                      
-            project.clone(proj);
+            
             
             
             try {
@@ -120,10 +119,14 @@ public class Piloto implements Experiment{
             Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
+            Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    public static void main(String[] args) throws MalformedURLException, ClassNotFoundException {
+    public static void main(String[] args) throws MalformedURLException, ClassNotFoundException, IOException, InterruptedException, ParseException {
         
         //Funções de Sililaridade
         
@@ -145,9 +148,9 @@ public class Piloto implements Experiment{
         URL url3 = new URL("https://api.github.com/repos/danwrong/low-pro-for-jquery");
         
         List<Project> projectList = new ArrayList();
-        projectList.add(new Project(url1, 1.0, true)); 
-        projectList.add(new Project(url2, 0.8, true));
-        projectList.add(new Project(url3, 0.7, true));
+        projectList.add(new Project(url1, 1.0, false)); 
+        projectList.add(new Project(url2, 0.8, false));
+        projectList.add(new Project(url3, 0.7, false));
         
         
         
@@ -158,7 +161,7 @@ public class Piloto implements Experiment{
         
         //Experimento "Piloto"
         
-        Piloto piloto = new Piloto(funcoes, projectList, new Project(gitMining, true));
+        Piloto piloto = new Piloto(funcoes, projectList, new Project(gitMining, false));
         
         piloto.run();
         
