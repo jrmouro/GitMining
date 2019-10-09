@@ -22,13 +22,15 @@ public class CommitDiffs {
     public final Path pathDir;
     final private List<CommitDiff> commitDiffs = new ArrayList();
     private Integer firstDate = Integer.MAX_VALUE, lastDate = 0;
-    final public Diff max = new Diff(null, null);
+    final public Diff max;
     final public CommitDiff totalCommitDiff;
 
-    public CommitDiffs(Path pathDir, CommitDiff total) {
-        this.pathDir = pathDir;
+    public CommitDiffs(Path pathRep, CommitDiff total) {
+        this.pathDir = pathRep;
         this.totalCommitDiff = total;
+        this.max = new Diff(null, null, pathRep);
     }
+    
 
     public Double getMaxDeletionsRate() {
         return this.max.getDiffMaxDeletionsRate(this.totalCommitDiff.diff);

@@ -18,13 +18,14 @@ import java.util.List;
  * @author ronaldo
  */
 public class Diff {
-    
-    final private Commit commit1, commit2;
+    final Path pathRep;
+    final public Commit commit1, commit2;
     public int changedfiles = 0, insertions = 0, deletions = 0;
 
-    public Diff(Commit c1, Commit c2) {
+    public Diff(Commit c1, Commit c2, Path pathRep) {
         this.commit1 = c1;
         this.commit2 = c2;
+        this.pathRep = pathRep;
     }
     
     public Double getNormalizedChangedFiles(Diff other){
@@ -93,12 +94,13 @@ public class Diff {
         
     }
 
-    public Diff(Commit c1, Commit c2, int changedfiles, int insertions, int deletions) {
+    public Diff(Commit c1, Commit c2, int changedfiles, int insertions, int deletions, Path pathRep) {
         this.changedfiles = changedfiles;
         this.insertions = insertions;
         this.deletions = deletions;
         this.commit1 = c1;
         this.commit2 = c2;
+        this.pathRep = pathRep;
     }
     
     public static Diff parse(Diff diff, String diffStr) {
@@ -129,9 +131,9 @@ public class Diff {
         return diff;
     }
 
-    public static Diff parse(Commit c1, Commit c2, String diff) {
+    public static Diff parse(Commit c1, Commit c2, String diff, Path pathRep) {
 
-        Diff ret = new Diff(c1, c2);
+        Diff ret = new Diff(c1, c2, pathRep);
 
         if (diff != null) {
 
@@ -157,11 +159,11 @@ public class Diff {
         return ret;
     }
 
-    static public Diff gitDiff(Commit c1, Commit c2, Path pathDir) throws IOException, InterruptedException {
+    static public Diff gitDiff(Commit c1, Commit c2, Path pathRep) throws IOException, InterruptedException {
         
-        Diff ret = new Diff(c1, c2);
+        Diff ret = new Diff(c1, c2, pathRep);
         
-        Process process = Runtime.getRuntime().exec("git diff " + c1.hash + " " + c2.hash + " --shortstat", null, new File(pathDir.toString()));
+        Process process = Runtime.getRuntime().exec("git diff " + c1.hash + " " + c2.hash + " --shortstat", null, new File(pathRep.toString()));
         //StringBuilder output = new StringBuilder();
         StringBuilder error = new StringBuilder();
 
@@ -173,7 +175,7 @@ public class Diff {
 
         String line = reader.readLine();
         if (line != null) {
-            ret = Diff.parse(c1, c2, line);
+            ret = Diff.parse(c1, c2, line, pathRep);
         }
 
         while ((line = stdError.readLine()) != null) {
