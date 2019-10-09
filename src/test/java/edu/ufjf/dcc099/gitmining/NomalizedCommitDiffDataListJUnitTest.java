@@ -6,11 +6,11 @@ package edu.ufjf.dcc099.gitmining;
  * and open the template in the editor.
  */
 
+import com.jrmouro.ufjf.dcc099.gitmining.canonicalPath.CanonicalPath;
 import com.jrmouro.ufjf.dcc099.gitmining.mining.Mining;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.List;
 import org.json.simple.parser.ParseException;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -46,22 +46,26 @@ public class NomalizedCommitDiffDataListJUnitTest {
     @Test
     public void test() throws IOException, InterruptedException, ParseException {
     
-        Path path = Mining.getPath("temp");
-        Mining.deleteDir(path);
-        List<URL> urls = Mining.githubPublicRepositoriesUrl(1);
-        if (urls.size() > 0) {
-
-            Mining.gitCloneRepository(urls.get(10), path);
-
-            List<Mining.NomalizedCommitDiffData> list = Mining.NomalizedCommitDiffData.nomalizedCommitDiffDataList(path, false);
-            List<Mining.NomalizedCommitDiffData> rlist = Mining.NomalizedCommitDiffData.reducednomalizedCommitDiffDataList(list);
-            for (Mining.NomalizedCommitDiffData nomalizedCommitDiffData : rlist) {
-                System.out.println(nomalizedCommitDiffData);
-            }
-            
-            Mining.NomalizedCommitDiffData.CommitDiffPlotSmoothBezier(rlist, Mining.getPath("script.plot"), Mining.getPath("data.txt"));
-
-        }
+        Path path = CanonicalPath.getPath("temp");
+        URL url = new URL("https://api.github.com/repos/jrmouro/GitMining");        
+        CanonicalPath.deleteDir(path);
+        
+        Mining mining = new Mining(path, url, true);
+        
+        mining.getNcdd().polynomChangedFilesPlot(CanonicalPath.getPath("ChangedFilesPolynom.plot"));
+        
+        mining.getNcdd().dataChangedFilesPlot(CanonicalPath.getPath("ChangedFiles.plot"), CanonicalPath.getPath("ChangedFiles.txt"));
+        
+        
+        mining.getNcdd().polynomDeletionsPlot(CanonicalPath.getPath("DeletionsPolynom.plot"));
+        
+        mining.getNcdd().dataDeletionsPlot(CanonicalPath.getPath("Deletions.plot"), CanonicalPath.getPath("Deletions.txt"));
+        
+        
+        mining.getNcdd().polynomInsertionsPlot(CanonicalPath.getPath("InsertionsPolynom.plot"));
+        
+        mining.getNcdd().dataInsertionsPlot(CanonicalPath.getPath("Insertions.plot"), CanonicalPath.getPath("Insertions.txt"));
+        
         
         
     }

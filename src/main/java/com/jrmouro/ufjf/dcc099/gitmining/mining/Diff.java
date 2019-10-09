@@ -26,6 +26,30 @@ public class Diff {
         this.commit1 = c1;
         this.commit2 = c2;
     }
+    
+    public Double getNormalizedChangedFiles(Diff other){
+        if(other.changedfiles > 0)
+            return Double.valueOf(this.changedfiles)/Double.valueOf(other.changedfiles);
+        return 1.0;
+    }
+    
+    public Double getNormalizedDeletions(Diff other){
+        if(other.deletions > 0)
+            return Double.valueOf(this.deletions)/Double.valueOf(other.deletions);
+        return 1.0;
+    }
+    
+    public Double getNormalizedInsertions(Diff other){
+        if(other.insertions > 0)
+            return Double.valueOf(this.insertions)/Double.valueOf(other.insertions);
+        return 1.0;
+    }
+    
+    public Double getNormalizedTime(Diff other){
+        Integer i = other.commit1.date, f = this.commit2.date;
+        Integer ff = other.commit2.date;        
+        return Double.valueOf(f - i)/Double.valueOf(ff - i);
+    }
       
     
     public Double getDiffMaxDeletionsRate(Diff max){

@@ -48,7 +48,7 @@ public class MiningJUnitTest {
     
         Path path = CanonicalPath.getPath("temp");
         URL url = new URL("https://api.github.com/repos/jrmouro/GitMining");
-        Mining mining = new Mining(path, url);
+        Mining mining = new Mining(path, url, true);
         
         
         

@@ -23,13 +23,13 @@ import org.json.simple.parser.ParseException;
  */
 public class NomalizedCommitDiffData {
 
-    public double ElapsedTime = 0;
+    public double time = 0;
     public double changedFiles = 0;
     public double deletions = 0;
     public double insertions = 0;
 
     public NomalizedCommitDiffData(double time, double changedFiles, double insertions, double deletions) {
-        this.ElapsedTime = time;
+        this.time = time;
         this.changedFiles = changedFiles;
         this.insertions = insertions;
         this.deletions = deletions;
@@ -37,40 +37,20 @@ public class NomalizedCommitDiffData {
 
     public NomalizedCommitDiffData(CommitDiff commitDiff, CommitDiff commitDiffRef) {
 
-        if (Math.abs(commitDiffRef.c1.date - commitDiffRef.c2.date) > 0) {
-            
-            this.ElapsedTime = Double.valueOf(Math.abs(commitDiff.c1.date - commitDiff.c2.date)) / Double.valueOf(Math.abs(commitDiffRef.c1.date - commitDiffRef.c2.date));
-            int aux = (int) (this.ElapsedTime * 10.0);
-            this.ElapsedTime = 0.1 + (aux / 10.0);
-            
-        }else{
-            this.ElapsedTime = 1.0;
-        }
-
-        if (commitDiffRef.diff.changedfiles > 0.0) {
-            this.changedFiles = Double.valueOf(commitDiff.diff.changedfiles) / Double.valueOf(commitDiffRef.diff.changedfiles);
-        } else {
-            this.changedFiles = 1.0;
-        }
-
-        if (commitDiffRef.diff.deletions > 0.0) {
-            this.deletions = Double.valueOf(commitDiff.diff.deletions) / Double.valueOf(commitDiffRef.diff.deletions);
-        } else {
-            this.deletions = 1.0;
-        }
         
-        if (commitDiffRef.diff.insertions > 0.0) {
-            this.insertions = Double.valueOf(commitDiff.diff.insertions) / Double.valueOf(commitDiffRef.diff.insertions);
-        } else {
-            this.insertions = 1.0;
-        }       
-        
+        this.time = commitDiff.diff.getNormalizedTime(commitDiffRef.diff);
+        int aux = (int) (this.time * 10.0);
+        this.time = (aux / 10.0);
+        this.changedFiles = commitDiff.diff.getNormalizedChangedFiles(commitDiffRef.diff);
+        this.deletions = commitDiff.diff.getNormalizedDeletions(commitDiffRef.diff);
+        this.insertions = commitDiff.diff.getNormalizedInsertions(commitDiffRef.diff);
+
 
     }
 
     @Override
     public String toString() {
-        return String.valueOf(this.ElapsedTime) + "\t"
+        return String.valueOf(this.time) + "\t"
                 + String.valueOf(this.changedFiles) + "\t"
                 + String.valueOf(this.insertions) + "\t"
                 + String.valueOf(this.deletions);
@@ -111,9 +91,9 @@ public class NomalizedCommitDiffData {
         CommitDiffPlot(script);
     }
 
-    static public void CommitDiffPlot(Path pathDir) throws IOException, InterruptedException {
+    static public void CommitDiffPlot(Path path) throws IOException, InterruptedException {
 
-        Process process = Runtime.getRuntime().exec("gnuplot -p " + pathDir.toString());
+        Process process = Runtime.getRuntime().exec("gnuplot -p " + path.toString());
 
         StringBuilder error = new StringBuilder();
 
@@ -219,27 +199,27 @@ public class NomalizedCommitDiffData {
         writer.close();
 
     }
-
+    
     public static List<NomalizedCommitDiffData> reducednomalizedCommitDiffDataList(List<NomalizedCommitDiffData> aux) throws IOException, InterruptedException {
 
         List<NomalizedCommitDiffData> ret = new ArrayList();
 
         if (aux.size() > 0) {
 
-            int i = 0;
+            int i = 1;
             double s1 = 0.0, s2 = 0.0, s3 = 0.0;
-            double t1 = aux.get(0).ElapsedTime;
+            double t1 = aux.get(0).time;
             
-            ret.add(new NomalizedCommitDiffData(0, 0, 0, 0));
+            //ret.add(new NomalizedCommitDiffData(0, 0, 0, 0));
 
             for (NomalizedCommitDiffData ncdd : aux) {
-                if (t1 != ncdd.ElapsedTime) {
+                if (t1 != ncdd.time) {
 
                     ret.add(new NomalizedCommitDiffData(t1, s1 / i, s2 / i, s3 / i));
 
-                    t1 = ncdd.ElapsedTime;
+                    t1 = ncdd.time;
                     s1 = s2 = s3 = 0.0;
-                    i = 0;
+                    i = 1;
                 } else {
                     s1 += ncdd.changedFiles;
                     s2 += ncdd.insertions;
@@ -253,6 +233,8 @@ public class NomalizedCommitDiffData {
         return ret;
     }
 
+    
+
     public static List<Map<Double, Double>> nomalizedCommitDiffDataListMap(Path pathDir, CommitDiff total, boolean onlyMergesCommits) throws IOException, InterruptedException, ParseException {
 
         List<Map<Double, Double>> ret = new ArrayList();
@@ -265,30 +247,30 @@ public class NomalizedCommitDiffData {
 
         for (NomalizedCommitDiffData ncdd : list) {
 
-            if (ncdd.ElapsedTime > 0.0) {
+            if (ncdd.time > 0.0) {
 
                 if (ncdd.changedFiles > 0.0) {
 
-                    Double v = ret.get(0).putIfAbsent(ncdd.ElapsedTime, ncdd.changedFiles);
+                    Double v = ret.get(0).putIfAbsent(ncdd.time, ncdd.changedFiles);
                     if (v != null) {
-                        ret.get(0).put(ncdd.ElapsedTime, (ncdd.changedFiles + ret.get(0).get(ncdd.ElapsedTime)) / 2);
+                        ret.get(0).put(ncdd.time, (ncdd.changedFiles + ret.get(0).get(ncdd.time)) / 2);
                     }
                 }
 
                 if (ncdd.insertions > 0.0) {
 
-                    Double v = ret.get(1).putIfAbsent(ncdd.ElapsedTime, ncdd.insertions);
+                    Double v = ret.get(1).putIfAbsent(ncdd.time, ncdd.insertions);
                     if (v != null) {
-                        ret.get(1).put(ncdd.ElapsedTime, (ncdd.insertions + ret.get(1).get(ncdd.ElapsedTime)) / 2);
+                        ret.get(1).put(ncdd.time, (ncdd.insertions + ret.get(1).get(ncdd.time)) / 2);
                     }
 
                 }
 
                 if (ncdd.deletions > 0.0) {
 
-                    Double v = ret.get(2).putIfAbsent(ncdd.ElapsedTime, ncdd.deletions);
+                    Double v = ret.get(2).putIfAbsent(ncdd.time, ncdd.deletions);
                     if (v != null) {
-                        ret.get(2).put(ncdd.ElapsedTime, (ncdd.deletions + ret.get(2).get(ncdd.ElapsedTime)) / 2);
+                        ret.get(2).put(ncdd.time, (ncdd.deletions + ret.get(2).get(ncdd.time)) / 2);
                     }
                 }
 

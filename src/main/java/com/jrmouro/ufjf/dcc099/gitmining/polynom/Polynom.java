@@ -20,7 +20,7 @@ public class Polynom {
         reduce();
     }
     
-    void reduce() {
+    final void reduce() {
         int size;
         for (size = p.length - 1; size > 0 && Math.abs(p[size]) < EPS; size--);
         if (++size < p.length) {
@@ -56,6 +56,8 @@ public class Polynom {
         return new Polynom(q);
     }
 
+  
+    
     /* newton's interpolation method: for n pairs (x,f(x)), return n-degree polynomial
            lowest degree earliest in returned array */
     public static double[] polynom(double f[], double x[]) {
@@ -78,12 +80,29 @@ public class Polynom {
         return r.p;
     }
     
+        
     public static double value(double x, double polynom[]) {
         double ret = 0.0;
-        int t = polynom.length - 1;
+        int t = 0;
         for (double c : polynom) {
-            ret =+ (c * Math.pow(x, t--));
+            ret =+ (c * Math.pow(x, t++));
         }
         return ret;
     }
+
+    public static String toString(double p[]) {
+        String ret = "f(x)=(";
+        int t = 0;
+        for (double c : p) {
+            
+            ret += (String.valueOf(c)+"*"+"x**"+String.valueOf(t)+")");
+            if(t < p.length - 1)
+                ret += "+(";
+            t++;
+        }
+        
+        return ret;
+    }
+    
+    
 }
