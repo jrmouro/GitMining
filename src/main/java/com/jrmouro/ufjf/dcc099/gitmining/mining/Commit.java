@@ -5,9 +5,6 @@
  */
 package com.jrmouro.ufjf.dcc099.gitmining.mining;
 
-import com.jrmouro.ufjf.dcc099.gitmining.mining.Diff;
-import com.jrmouro.ufjf.dcc099.gitmining.mining.Commits;
-import com.jrmouro.ufjf.dcc099.gitmining.mining.MergeConflicts;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -40,12 +37,12 @@ public class Commit {
     }
     
     public Double getDiffCommitDeletionsRate(Commit commit) throws IOException, InterruptedException{
-        Diff diff = Diff.gitDiff(this, commit, pathDir);
+        Diff diff = NormalizedDiff.gitDiff(this, commit, pathDir, null);
         return diff.getNrChangedFilesNrDeletionsRate();
     }
     
     public Double getDiffCommitInsertionsRate(Commit commit) throws IOException, InterruptedException{
-        Diff diff = Diff.gitDiff(this, commit, pathDir);
+        Diff diff = NormalizedDiff.gitDiff(this, commit, pathDir, null);
         return diff.getNrChangedFilesNrInsertionsRate();
     }
     

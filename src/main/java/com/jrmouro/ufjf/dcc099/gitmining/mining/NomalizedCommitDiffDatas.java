@@ -208,62 +208,7 @@ public class NomalizedCommitDiffDatas {
         return ret;
     }
 
-    static public void gnuplot(Path path) throws IOException, InterruptedException {
-
-        Process process = Runtime.getRuntime().exec("gnuplot -p " + path.toString());
-
-        StringBuilder error = new StringBuilder();
-
-        BufferedReader stdError = new BufferedReader(
-                new InputStreamReader(process.getErrorStream()));
-
-        String line;
-        while ((line = stdError.readLine()) != null) {
-            error.append(line).append("\n");
-        }
-
-        int exitVal = process.waitFor();
-
-        if (exitVal == 0 && error.toString().length() > 0) {
-
-            System.out.println("Error: " + error.toString());
-
-        }
-
-    }
-
-    public static void polynomPlotScript(Path path, String title, double[] polynom) throws IOException {
-
-        String fx = Polynom.toString(polynom);
-
-        File file = new File(path.toString());
-
-        // delete the file if it exists
-        file.delete();
-
-        // creates the file
-        file.createNewFile();
-
-        // creates a FileWriter Object
-        FileWriter writer = new FileWriter(file);
-
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("set title \"").append(title).append("\"\n");
-        sb.append("set xlabel \"elapse time\"\n");
-        sb.append("set ylabel \"volume\"\n");
-        sb.append("set grid\n");
-        sb.append(fx).append("\n");
-        sb.append("set xrange [0:1]\n");
-        sb.append("set yrange [0:1]\n");
-        sb.append("plot f(x)\n");
-
-        // Writes the content to the file
-        writer.write(sb.toString());
-        writer.flush();
-        writer.close();
-
-    }
+    
 
     public static void dataPlotScript(Path path, Path data) throws IOException {
 
