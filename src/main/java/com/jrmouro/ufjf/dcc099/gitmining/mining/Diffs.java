@@ -25,10 +25,15 @@ public class Diffs implements Iterable<Diff>{
         this.dirRep = dirRep;
         this.diffs = new ArrayList();
     }
+    
+    public Diffs(Path dirRep, List<Diff> diffs) {
+        this.dirRep = dirRep;
+        this.diffs = diffs;
+    }
 
     public Diffs(Path dirRep, boolean onlyMergesCommits) throws IOException, InterruptedException, ParseException {
         this.dirRep = dirRep;
-        this.diffs = Diffs.gitDiffs(dirRep, onlyMergesCommits);
+        this.diffs = Diffs.gitDiffsList(dirRep, onlyMergesCommits);
     }
     
     public Diff max() throws IOException, InterruptedException{
@@ -38,6 +43,8 @@ public class Diffs implements Iterable<Diff>{
             return this.diffs.get(0);
         return Diff.gitDiff(this.diffs.get(0).commit1, this.diffs.get(this.diffs.size() - 1).commit2, dirRep);
     }
+    
+    
 
     @Override
     public Iterator<Diff> iterator() {
@@ -59,6 +66,32 @@ public class Diffs implements Iterable<Diff>{
         return ret;
     }
     
+    static public Diffs gitDiffs(Commits commits, Integer indexFirst, Integer indexLast, double pass, Path pathRep) throws IOException, InterruptedException {
+
+        int p = (int)(commits.size() * pass);       
+            
+        return Diffs.gitDiffs(commits, indexFirst, indexLast, p, pathRep);
+    }
+    
+    static public Diffs gitDiffs(Commits commits, Integer indexFirst, Integer indexLast, Integer pass, Path pathRep) throws IOException, InterruptedException {
+
+        
+        Diffs ret = new Diffs(pathRep);
+        
+        int f = indexFirst;
+        int i = f + pass;
+        
+        for (; i < commits.size() - 1 && i <= indexLast; i = i + pass) {
+            ret.add(Diff.gitDiff(commits.get(f), commits.get(i), pathRep));
+            f = i;
+        }
+        
+        if(indexLast < commits.size() && f < indexLast)
+           ret.add(Diff.gitDiff(commits.get(f), commits.get(indexLast), pathRep));
+            
+        return ret;
+    }
+    
     static public Diffs gitDiffs(Commits commits, Path pathRep) throws IOException, InterruptedException {
 
         Diffs ret = new Diffs(pathRep);
@@ -70,7 +103,18 @@ public class Diffs implements Iterable<Diff>{
         return ret;
     }
     
-    static public List<Diff> gitDiffs(Path pathRep, boolean onlyMergesCommits) throws IOException, InterruptedException, ParseException {
+    static public List<Diff> gitDiffsList(Commits commits, Path pathRep) throws IOException, InterruptedException {
+
+        List<Diff> ret = new ArrayList();
+
+        for (int i = 0; i < commits.size() - 1; i++) {
+            ret.add(Diff.gitDiff(commits.get(i), commits.get(i + 1), pathRep));
+        }
+
+        return ret;
+    }
+    
+    static public List<Diff> gitDiffsList(Path pathRep, boolean onlyMergesCommits) throws IOException, InterruptedException, ParseException {
 
         List<Diff> ret = new ArrayList();
         

@@ -54,19 +54,19 @@ public class Diff {
       
     
     public Double getDiffMaxDeletionsRate(Diff max){
-        if(max.deletions == 0 || max == null)
+        if(max.deletions == 0)
             return 1.0;
         return Double.valueOf(this.deletions)/Double.valueOf(max.deletions);
     }
     
     public Double getDiffMaxInsertionsRate(Diff max){
-        if(max.insertions == 0 || max == null)
+        if(max.insertions == 0)
             return 1.0;
         return Double.valueOf(this.insertions)/Double.valueOf(max.insertions);
     }
     
     public Double getDiffMaxChangedFilesRate(Diff max){
-        if(max.changedfiles == 0 || max == null)
+        if(max.changedfiles == 0)
             return 1.0;
         return Double.valueOf(this.changedfiles)/Double.valueOf(max.changedfiles);
     }
