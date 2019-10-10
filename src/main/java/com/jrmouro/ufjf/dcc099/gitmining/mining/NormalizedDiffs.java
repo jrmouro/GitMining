@@ -17,6 +17,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
+import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
+import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -25,8 +29,9 @@ import java.util.logging.Logger;
 public class NormalizedDiffs implements Iterable<NormalizedDiff>, Plottable{
     
     final private List<NormalizedDiff> nomalizedDiffs = new ArrayList();
-    final private Plottables plottables = new Plottables();   
+    final private Plottables plottables = new Plottables(); 
     
+        
     public void add(NormalizedDiff diff){
         this.nomalizedDiffs.add(diff);
     }
@@ -74,6 +79,44 @@ public class NormalizedDiffs implements Iterable<NormalizedDiff>, Plottable{
         }
         return Polynom.polynom(y, x);
     }
+    
+    public UnivariateFunction polynomChangedFilesFunction() {
+        UnivariateInterpolator interpolator = new SplineInterpolator();
+        double[] x = new double[this.nomalizedDiffs.size()];
+        double[] y = new double[this.nomalizedDiffs.size()];
+        int i = 0;
+        for (NormalizedDiff d : this.nomalizedDiffs) {
+            x[i] = d.getNormalizedTime();
+            y[i++] = d.getNormalizedChangedFiles();
+        }
+        return interpolator.interpolate(x, y);
+    }
+    
+    public UnivariateFunction polynomInsertionsFunction() {
+        UnivariateInterpolator interpolator = new SplineInterpolator();
+        double[] x = new double[this.nomalizedDiffs.size()];
+        double[] y = new double[this.nomalizedDiffs.size()];
+        int i = 0;
+        for (NormalizedDiff d : this.nomalizedDiffs) {
+            x[i] = d.getNormalizedTime();
+            y[i++] = d.getNormalizedInsertions();
+        }
+        return interpolator.interpolate(x, y);
+    }
+    
+    public UnivariateFunction polynomDeletionsFunction() {
+        UnivariateInterpolator interpolator = new SplineInterpolator();
+        double[] x = new double[this.nomalizedDiffs.size()];
+        double[] y = new double[this.nomalizedDiffs.size()];
+        int i = 0;
+        for (NormalizedDiff d : this.nomalizedDiffs) {
+            x[i] = d.getNormalizedTime();
+            y[i++] = d.getNormalizedDeletions();
+        }
+        return interpolator.interpolate(x, y);
+    }
+
+    
 
     @Override
     public void plot() {
@@ -97,18 +140,72 @@ public class NormalizedDiffs implements Iterable<NormalizedDiff>, Plottable{
 
     @Override
     public Path script(Path data) {
-        return null;
+        return null;       
+        
     }
     
+    static public NormalizedDiffs getNormalizedDiffs(Path pathRep, boolean onlyMergesCommits) throws IOException, InterruptedException, ParseException {
+                
+        Diff diffRef = null;
+        
+        Commits commits = Commits.gitCommits(pathRep, onlyMergesCommits);        
+        
+        if(commits.size() > 1)
+            diffRef = NormalizedDiff.gitDiff(commits.get(0), commits.get(commits.size() - 1), pathRep, null);
+        
+        return getNormalizedDiffs(commits, pathRep, diffRef);
+    }
     
-    static public Diffs gitDiffs(Commits commits, Integer indexFirst, Integer indexLast, double pass, Path pathRep) throws IOException, InterruptedException {
+    static public NormalizedDiffs getNormalizedDiffs(Commits commits, Path pathRep) throws IOException, InterruptedException {
+                
+        Diff diffRef = null;
+        
+        if(commits.size() > 1)
+            diffRef = NormalizedDiff.gitDiff(commits.get(0), commits.get(commits.size() - 1), pathRep, null);
+        
+        return getNormalizedDiffs(commits, pathRep, diffRef);
+    }
+    
+    static public NormalizedDiffs getNormalizedDiffs(Commits commits, Path pathRep, Diff diffRef) throws IOException, InterruptedException {
 
-        int p = (int)(commits.size() * pass);       
-            
-        return Diffs.gitDiffs(commits, indexFirst, indexLast, p, pathRep);
+        NormalizedDiffs ret = new NormalizedDiffs();
+
+        for (int i = 0; i < commits.size() - 1; i++) {
+            ret.add(NormalizedDiff.gitDiff(commits.get(i), commits.get(i + 1), pathRep, diffRef));
+        }
+
+        return ret;
     }
     
-    static public NormalizedDiffs gitDiffs(Commits commits, Integer indexFirst, Integer indexLast, Integer pass, Path pathRep, Diff diffRef) throws IOException, InterruptedException {
+    static public NormalizedDiffs getNormalizedDiffs(Commits commits, Integer indexFirst, Integer indexLast, double pass, Path pathRep) throws IOException, InterruptedException {
+
+        
+        Diff diffRef = null;
+        
+        if(commits.size() > 1)
+            diffRef = NormalizedDiff.gitDiff(commits.get(0), commits.get(commits.size() - 1), pathRep, null);
+        
+        
+        NormalizedDiffs ret = new NormalizedDiffs();
+        int a = 1;
+        int f = indexFirst;
+        int i = f + (int)(a*pass);
+        
+        for (; i < commits.size() - 1 && i <= indexLast; i = (int)(a*pass)) {
+            ret.add(NormalizedDiff.gitDiff(commits.get(f), commits.get(i), pathRep, diffRef));
+            f = i;
+            a++;
+        }
+        
+        if(indexLast < commits.size() && f < indexLast)
+           ret.add(NormalizedDiff.gitDiff(commits.get(f), commits.get(indexLast), pathRep, diffRef));
+            
+        return ret;
+    }
+    
+    
+  
+    static public NormalizedDiffs getNormalizedDiffs(Commits commits, Integer indexFirst, Integer indexLast, Integer pass, Path pathRep, Diff diffRef) throws IOException, InterruptedException {
 
         
         NormalizedDiffs ret = new NormalizedDiffs();

@@ -10,8 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -39,9 +37,10 @@ public class NormalizedDiff extends Diff{
     @Override
     final public NormalizedDiff normalize(Diff difRef){
         this.difRef = difRef;        
-        double t = this.getNormalizedTime(difRef);
-        int aux = (int) (t * 10.0);
-        this.normalizedTime = (aux / 10.0);
+        //double t = this.getNormalizedTime(difRef);
+        //int aux = (int) (t * 10.0);
+        //this.normalizedTime = (aux / 10.0);
+        this.normalizedTime = this.getNormalizedTime(difRef);
         this.normalizedChangedFiles = this.getNormalizedChangedFiles(difRef);
         this.normalizedDeletions = this.getNormalizedDeletions(difRef);
         this.normalizedInsertions = this.getNormalizedInsertions(difRef);
