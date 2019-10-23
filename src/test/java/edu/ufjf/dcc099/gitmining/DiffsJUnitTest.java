@@ -8,7 +8,6 @@ package edu.ufjf.dcc099.gitmining;
 import com.jrmouro.ufjf.dcc099.gitmining.canonicalPath.CanonicalPath;
 import com.jrmouro.ufjf.dcc099.gitmining.mining.Commits;
 import com.jrmouro.ufjf.dcc099.gitmining.mining.Diff;
-import com.jrmouro.ufjf.dcc099.gitmining.mining.Diffs;
 import com.jrmouro.ufjf.dcc099.gitmining.mining.NormalizedDiff;
 import com.jrmouro.ufjf.dcc099.gitmining.mining.NormalizedDiffs;
 import java.io.IOException;
@@ -20,7 +19,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -49,6 +47,7 @@ public class DiffsJUnitTest {
 
     @Test
     public void test() throws IOException, InterruptedException, ParseException {
+        
         Path pathRep = CanonicalPath.getPath("temp");
         
         Commits commits = Commits.gitCommits(pathRep, false);        

@@ -40,13 +40,11 @@ public class Mining {
 
     private Commits commits = null;
 
-    private CommitDiff total = null;
+    private Diff total = null;
 
-    private CommitDiffs commitDiffs = null;
+    private Diffs diffs = null;
 
-    private NomalizedCommitDiffDatas ncdd = null;
-    
-    private NomalizedCommitDiffDatas rNcdd = null;
+    private NormalizedDiffs ndd = null;    
     
     private UnivariateFunction polynomChangedDeletions = null;
     
@@ -68,8 +66,8 @@ public class Mining {
         return url;
     }
 
-    public NomalizedCommitDiffDatas getrNcdd() {
-        return rNcdd;
+    public NormalizedDiffs getrNdd() {
+        return ndd;
     }
 
     public UnivariateFunction getPolynomChangedDeletions() {
@@ -103,18 +101,14 @@ public class Mining {
         return commits;
     }
 
-    public CommitDiff getTotal() {
+    public Diff getTotal() {
         return total;
     }
 
-    public CommitDiffs getCommitDiffs() {
-        return commitDiffs;
+    public Diffs getCommitDiffs() {
+        return diffs;
     }
-
-    public NomalizedCommitDiffDatas getNcdd() {
-        return ncdd;
-    }
-
+    
     public MergeConflicts getMergeConflicts() {
         return mergeConflicts;
     }
@@ -187,8 +181,8 @@ public class Mining {
             
                 String htmlUrl = (String) this.githubRepositoryJSONObject.get("html_url");
             
-                CanonicalPath.deleteDir(pathDir);
-            
+                CanonicalPath.deleteDir(pathDir);    
+                            
                 gitCloneRepository(new URL(htmlUrl), pathDir);
             
             }
@@ -209,19 +203,9 @@ public class Mining {
 
             if (this.commits.size() > 1) {
 
-                this.total = new CommitDiff(pathDir, this.commits.get(0), this.commits.get(this.commits.size() - 1));
+                this.total = new NormalizedDiff(this.commits.get(0), this.commits.get(this.commits.size() - 1), pathDir);
 
-                this.commitDiffs = CommitDiffs.gitCommitDiffs(commits);
-
-                this.ncdd = NomalizedCommitDiffDatas.nomalizedCommitDiffDatas(commitDiffs);
-                
-                this.rNcdd = ncdd.reducednomalizedCommitDiffDatas();
-                
-                this.polynomChangedDeletions = rNcdd.polynomDeletionsFunction();
-    
-                this.polynomChangedInsertions = rNcdd.polynomInsertionsFunction();
-    
-                this.polynomChangedChangedFiles = rNcdd.polynomChangedFilesFunction();
+                this.diffs = Diffs.gitDiffs(commits, pathDir, total);                
 
                 this.mergeConflicts = MergeConflicts.gitMergeConflicts(pathDir);
 
