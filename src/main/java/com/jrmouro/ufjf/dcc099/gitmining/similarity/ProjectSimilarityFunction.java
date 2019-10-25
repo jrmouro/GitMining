@@ -20,6 +20,11 @@ public abstract class ProjectSimilarityFunction  implements SimilarityFunction{
         this.project = project;
         this.param = param;
     }
+    
+    public ProjectSimilarityFunction(Project project) {
+        this.project = project;
+        this.param = null;
+    }
 
     @Override
     public Object getParam() {

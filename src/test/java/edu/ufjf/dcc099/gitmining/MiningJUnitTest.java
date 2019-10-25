@@ -50,7 +50,7 @@ public class MiningJUnitTest {
         Mining mining = new Mining(path, url, true);
         
         
-        
+        System.out.println(mining.getBranches());
         
     
         

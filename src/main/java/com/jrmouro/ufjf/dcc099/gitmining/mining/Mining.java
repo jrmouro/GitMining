@@ -44,13 +44,13 @@ public class Mining {
 
     private Diffs diffs = null;
 
-    private NormalizedDiffs ndd = null;    
+    private final NormalizedDiffs ndd;    
     
-    private UnivariateFunction polynomChangedDeletions = null;
+    private final UnivariateFunction polynomChangedDeletions;
     
-    private UnivariateFunction polynomChangedInsertions = null;
+    private final UnivariateFunction polynomChangedInsertions;
     
-    private UnivariateFunction polynomChangedChangedFiles = null;
+    private final UnivariateFunction polynomChangedChangedFiles;
 
     private MergeConflicts mergeConflicts = null;
     
@@ -210,6 +210,8 @@ public class Mining {
                 this.mergeConflicts = MergeConflicts.gitMergeConflicts(pathDir);
 
                 MergeConflicts.setConflictCommits(this.commits, mergeConflicts);
+                
+                
 
             }
 
@@ -442,11 +444,11 @@ public class Mining {
 
         String line;
         while ((line = reader.readLine()) != null) {
-            output.append(line + "\n");
+            output.append(line).append("\n");
         }
 
         while ((line = stdError.readLine()) != null) {
-            error.append(line + "\n");
+            error.append(line).append("\n");
         }
 
         int exitVal = process.waitFor();
