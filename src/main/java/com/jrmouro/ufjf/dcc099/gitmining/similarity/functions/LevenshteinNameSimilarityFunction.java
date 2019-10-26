@@ -5,6 +5,7 @@
  */
 package com.jrmouro.ufjf.dcc099.gitmining.similarity.functions;
 
+import com.jrmouro.ufjf.dcc099.gitmining.mining.levenshtein.LevenshteinDistance;
 import com.jrmouro.ufjf.dcc099.gitmining.project.Project;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.ProjectSimilarityFunction;
 
@@ -12,14 +13,17 @@ import com.jrmouro.ufjf.dcc099.gitmining.similarity.ProjectSimilarityFunction;
  *
  * @author ronaldo
  */
-public class BranchesSimilarityFunction extends ProjectSimilarityFunction{
+public class LevenshteinNameSimilarityFunction extends ProjectSimilarityFunction{
     
     private final double value;
 
-    public BranchesSimilarityFunction(Project project, Object param) {
+    public LevenshteinNameSimilarityFunction(Project project, Object param) {
         super(project, param);
         
-        this.value = (double)project.mining.getBranches().size() / (double)project.mining.getCommits().size();
+        if(param instanceof String)
+            this.value = LevenshteinDistance.get((String)project.mining.getGithubRepositoryJSONObject().get("name"), param.toString());
+        else
+            this.value = 0.0;
     }
 
     @Override

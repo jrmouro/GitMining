@@ -6,12 +6,14 @@
 package com.jrmouro.ufjf.dcc099.experiment;
 
 
-import com.jrmouro.ufjf.dcc099.gitmining.project.Project;
+
+
 import com.jrmouro.genetic.evolutionstrategies.chromosome.ChromosomeAbstract;
 import com.jrmouro.genetic.evolutionstrategies.chromosome.ChromosomeDouble;
 import com.jrmouro.genetic.evolutionstrategies.chromosome.ChromosomeOne;
 import com.jrmouro.genetic.evolutionstrategies.evolution.EvolutionScoutSniffer;
 import com.jrmouro.genetic.evolutionstrategies.fitnessfunction.FitnessFunction;
+import com.jrmouro.ufjf.dcc099.gitmining.project.Project;
 import com.jrmouro.ufjf.dcc099.gitmining.canonicalPath.CanonicalPath;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.FactorySimilarytyFunction;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.LinearSystemSimilarityEquation;
@@ -41,11 +43,13 @@ public class Piloto implements Experiment{
     public final List<Project> projectRef;
     public final Project project;
     private LinearSystemSimilarityEquation lsse;
+    private final double fatorNormalizedDiffs;
 
-    public Piloto(List<ParamClassFunction> paramclassFunctions, List<Project> projectRef, Project project) {
+    public Piloto(List<ParamClassFunction> paramclassFunctions, List<Project> projectRef, Project project, double fatorNormalizedDiffs) {
         this.paramclassFunctions = paramclassFunctions;
         this.projectRef = projectRef;
         this.project = project;
+        this.fatorNormalizedDiffs = fatorNormalizedDiffs;
     }       
     
 
@@ -64,13 +68,13 @@ public class Piloto implements Experiment{
             
             //Minera os repositórios
             
-            project.mine(true);
+            project.mine(true, fatorNormalizedDiffs);
             
             
             int i = 1;
             for (Project p : this.projectRef){      
                 p.clonePath = Paths.get(projRef.toString(), "ref" + String.valueOf(i++));
-                p.mine(true);
+                p.mine(true, fatorNormalizedDiffs);
             }
                                      
             
@@ -80,6 +84,7 @@ public class Piloto implements Experiment{
                 // Gera o Sistema de Equações de Similaridade
 
                 lsse = Piloto.getLSSE(projectRef, paramclassFunctions);
+                
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
             } catch (NoSuchMethodException ex) {
@@ -103,8 +108,10 @@ public class Piloto implements Experiment{
                     return Math.abs(lsse.getValue());
                     
                 }
+
+
             
-            } ;    
+            } ;   
             
             // um cromossomo inicial
             
@@ -112,7 +119,17 @@ public class Piloto implements Experiment{
             
             c = (ChromosomeDouble) new EvolutionScoutSniffer(100, 0.001).evolve(c, 100, false);
             
-            System.out.println(c);
+            
+            
+            SimilarityEquation res = getSE(project, paramclassFunctions);
+            
+            res.setWeights(c.getRepresentation());
+            
+            System.out.println("weights: " + c);
+            
+            System.out.println("similarity: " + res.getValue());
+            
+            
             
             
         } catch (IOException ex) {
@@ -122,6 +139,16 @@ public class Piloto implements Experiment{
         } catch (InterruptedException ex) {
             Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ParseException ex) {
+            Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchMethodException ex) {
+            Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvocationTargetException ex) {
             Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -137,6 +164,8 @@ public class Piloto implements Experiment{
         languagesParam.add("JavaScript");
         languagesParam.add("Ruby");
         
+        
+        
         List<ParamClassFunction> funcoes = new ArrayList();
         funcoes.add(new ParamClassFunction(Class.forName(mergeConflicts), null));
         funcoes.add(new ParamClassFunction(Class.forName(languages), languagesParam));
@@ -148,9 +177,9 @@ public class Piloto implements Experiment{
         URL url3 = new URL("https://api.github.com/repos/danwrong/low-pro-for-jquery");
         
         List<Project> projectList = new ArrayList();
-        projectList.add(new Project(url1, 1.0, false)); 
-        projectList.add(new Project(url2, 0.8, false));
-        projectList.add(new Project(url3, 0.7, false));
+        projectList.add(new Project(url1, 1.0, false, 5.0)); 
+        projectList.add(new Project(url2, 0.8, false, 5.0));
+        projectList.add(new Project(url3, 0.7, false, 5.0));
         
         
         
@@ -161,7 +190,7 @@ public class Piloto implements Experiment{
         
         //Experimento "Piloto"
         
-        Piloto piloto = new Piloto(funcoes, projectList, new Project(gitMining, false));
+        Piloto piloto = new Piloto(funcoes, projectList, new Project(gitMining, false, 5.0), 5.0);
         
         piloto.run();
         

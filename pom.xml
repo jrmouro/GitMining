@@ -29,12 +29,7 @@
             <version>5.3.1</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.3.1</version>
-            <scope>test</scope>
-        </dependency>
+        
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -55,11 +50,17 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>com.jrmouro</groupId>
+            <groupId>jrmouro</groupId>
             <artifactId>Genetic</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/Genetic-1.0-SNAPSHOT.jar</systemPath>
+            <systemPath>/home/ronaldo/Documentos/genetic/target/Genetic-1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.mycompany</groupId>
+            <artifactId>Genetic</artifactId>
+            <version>1</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
 </project>

@@ -52,7 +52,6 @@ public class DiffsJUnitTest {
         
         Commits commits = Commits.gitCommits(pathRep, false);        
         
-        
         NormalizedDiffs diffs = NormalizedDiffs.getNormalizedDiffs(commits, 0, commits.size()-1, Double.valueOf(commits.size())/10.0, pathRep);
         
         for (Iterator<NormalizedDiff> iterator = diffs.iterator(); iterator.hasNext();) {

@@ -62,7 +62,7 @@ public class PolynomPlottable extends ScriptPlottable{
         sb.append("set grid\n");
         sb.append(fx).append("\n");
         sb.append("set xrange [0:1]\n");
-        sb.append("set yrange [0:1]\n");
+        //sb.append("set yrange [0:1]\n");
         sb.append("plot f(x)\n");
 
         try {

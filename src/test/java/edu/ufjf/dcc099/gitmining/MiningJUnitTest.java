@@ -47,7 +47,7 @@ public class MiningJUnitTest {
     
         Path path = CanonicalPath.getPath("temp");
         URL url = new URL("https://api.github.com/repos/jrmouro/GitMining");
-        Mining mining = new Mining(path, url, true);
+        Mining mining = new Mining(path, url, true, 5.0);
         
         
         System.out.println(mining.getBranches());

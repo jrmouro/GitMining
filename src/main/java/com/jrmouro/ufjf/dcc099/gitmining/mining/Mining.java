@@ -33,7 +33,7 @@ public class Mining {
     private final Path pathDir;
 
     private final URL url;
-    
+
     private JSONObject githubRepositoryJSONObject = null;
 
     private Commits mergeCommits = null;
@@ -44,18 +44,18 @@ public class Mining {
 
     private Diffs diffs = null;
 
-    private final NormalizedDiffs ndd;    
-    
+    private final NormalizedDiffs ndd;
+
     private final UnivariateFunction polynomChangedDeletions;
-    
+
     private final UnivariateFunction polynomChangedInsertions;
-    
+
     private final UnivariateFunction polynomChangedChangedFiles;
 
     private MergeConflicts mergeConflicts = null;
-    
+
     private Map<String, Long> githubLanguages = null;
-    
+
     private List<String> branches = null;
 
     public Path getPathDir() {
@@ -81,12 +81,13 @@ public class Mining {
     public UnivariateFunction getPolynomChangedChangedFiles() {
         return polynomChangedChangedFiles;
     }
-        
-    public void gitCloneRepository() throws IOException, InterruptedException, Exception{
-        if(url != null && pathDir != null)
+
+    public void gitCloneRepository() throws IOException, InterruptedException, Exception {
+        if (url != null && pathDir != null) {
             Mining.gitCloneRepository(url, pathDir);
-        else
+        } else {
             throw new Exception("Url or pathDir invalid!");
+        }
     }
 
     public JSONObject getGithubRepositoryJSONObject() {
@@ -108,7 +109,7 @@ public class Mining {
     public Diffs getCommitDiffs() {
         return diffs;
     }
-    
+
     public MergeConflicts getMergeConflicts() {
         return mergeConflicts;
     }
@@ -120,79 +121,82 @@ public class Mining {
     public List<String> getBranches() {
         return branches;
     }
-       
-    
-    public Long stargazersCount(){
-        if(this.githubRepositoryJSONObject != null)
-            return (Long)this.githubRepositoryJSONObject.get("stargazers_count");
+
+    public Long stargazersCount() {
+        if (this.githubRepositoryJSONObject != null) {
+            return (Long) this.githubRepositoryJSONObject.get("stargazers_count");
+        }
         return 0L;
     }
-    
-    public Long subscribersCount(){
-        if(this.githubRepositoryJSONObject != null)
-            return (Long)this.githubRepositoryJSONObject.get("subscribers_count");
+
+    public Long subscribersCount() {
+        if (this.githubRepositoryJSONObject != null) {
+            return (Long) this.githubRepositoryJSONObject.get("subscribers_count");
+        }
         return 0L;
     }
-    
-    public Long networkCount(){
-        if(this.githubRepositoryJSONObject != null)
-            return (Long)this.githubRepositoryJSONObject.get("network_count");
+
+    public Long networkCount() {
+        if (this.githubRepositoryJSONObject != null) {
+            return (Long) this.githubRepositoryJSONObject.get("network_count");
+        }
         return 0L;
     }
-    
-    public Long forksCount(){
-        if(this.githubRepositoryJSONObject != null)
-            return (Long)this.githubRepositoryJSONObject.get("forks_count");
+
+    public Long forksCount() {
+        if (this.githubRepositoryJSONObject != null) {
+            return (Long) this.githubRepositoryJSONObject.get("forks_count");
+        }
         return 0L;
     }
-    
-    public String name(){
-        if(this.githubRepositoryJSONObject != null)
-            return (String)this.githubRepositoryJSONObject.get("name");
+
+    public String name() {
+        if (this.githubRepositoryJSONObject != null) {
+            return (String) this.githubRepositoryJSONObject.get("name");
+        }
         return "";
     }
-    
-    public Long openIssuesCount(){
-        if(this.githubRepositoryJSONObject != null)
-            return (Long)this.githubRepositoryJSONObject.get("open_issues_count");
-        return 0L;
-    }
-    
-    public Long watchersCount(){
-        if(this.githubRepositoryJSONObject != null)
-            return (Long)this.githubRepositoryJSONObject.get("watchers_count");
-        return 0L;
-    }
-    
-    
-    
 
-    public Mining(Path pathDir, URL url, boolean clone) throws IOException, InterruptedException, ParseException {
+    public Long openIssuesCount() {
+        if (this.githubRepositoryJSONObject != null) {
+            return (Long) this.githubRepositoryJSONObject.get("open_issues_count");
+        }
+        return 0L;
+    }
+
+    public Long watchersCount() {
+        if (this.githubRepositoryJSONObject != null) {
+            return (Long) this.githubRepositoryJSONObject.get("watchers_count");
+        }
+        return 0L;
+    }
+
+    public Mining(Path pathDir, URL url, boolean clone, double fatorNormalizedDiffs) throws IOException, InterruptedException, ParseException {
 
         this.pathDir = pathDir;
 
         this.url = url;
-        
-        if(url != null){
-            
+
+        if (url != null) {
+
             this.githubRepositoryJSONObject = Mining.githubRepositoryJSONObject(url);
-            
-            if(clone && pathDir != null){
-            
+
+            if (clone && pathDir != null) {
+
                 String htmlUrl = (String) this.githubRepositoryJSONObject.get("html_url");
-            
-                CanonicalPath.deleteDir(pathDir);    
-                            
+
+                CanonicalPath.deleteDir(pathDir);
+
                 gitCloneRepository(new URL(htmlUrl), pathDir);
-            
+
             }
-            
-            this.githubLanguages = Mining.githubLanguages(new URL((String)this.githubRepositoryJSONObject.get("languages_url")));
-        
-            String branches_url = ((String)this.githubRepositoryJSONObject.get("branches_url")).replace("{/branch}", "");
-            
+
+            this.githubLanguages = Mining.githubLanguages(new URL((String) this.githubRepositoryJSONObject.get("languages_url")));
+
+            String branches_url = ((String) this.githubRepositoryJSONObject.get("branches_url")).replace("{/branch}", "");
+
             this.branches = Mining.githubBranches(new URL(branches_url));
-        
+
         }
 
         if (this.pathDir != null) {
@@ -205,21 +209,39 @@ public class Mining {
 
                 this.total = new NormalizedDiff(this.commits.get(0), this.commits.get(this.commits.size() - 1), pathDir);
 
-                this.diffs = Diffs.gitDiffs(commits, pathDir, total);                
+                this.diffs = Diffs.gitDiffs(commits, pathDir, total);
 
                 this.mergeConflicts = MergeConflicts.gitMergeConflicts(pathDir);
 
                 MergeConflicts.setConflictCommits(this.commits, mergeConflicts);
-                
-                
 
+                this.ndd = NormalizedDiffs.getNormalizedDiffs(commits, 0, commits.size() - 1, Double.valueOf(commits.size()) / fatorNormalizedDiffs, pathDir);
+
+                this.polynomChangedChangedFiles = this.ndd.polynomChangedFilesFunction();
+
+                this.polynomChangedDeletions = this.ndd.polynomDeletionsFunction();
+
+                this.polynomChangedInsertions = this.ndd.polynomInsertionsFunction();
+                
+                ndd.plot();
+
+            } else {
+                this.ndd = null;
+                this.polynomChangedChangedFiles = null;
+                this.polynomChangedDeletions = null;
+                this.polynomChangedInsertions = null;
             }
 
+        } else {
+            this.ndd = null;
+            this.polynomChangedChangedFiles = null;
+            this.polynomChangedDeletions = null;
+            this.polynomChangedInsertions = null;
         }
 
     }
-    
-    public List<String> githubBranches() throws IOException, InterruptedException, ParseException{
+
+    public List<String> githubBranches() throws IOException, InterruptedException, ParseException {
         return Mining.githubBranches(url);
     }
 
@@ -350,7 +372,7 @@ public class Mining {
                 new InputStreamReader(process.getErrorStream()));
 
         String line;
-        
+
         while ((line = reader.readLine()) != null) {
             output.append(line).append("\n");
         }
@@ -386,7 +408,7 @@ public class Mining {
         return ret;
 
     }
-    
+
     static public JSONObject githubRepositoryJSONObject(URL url) throws IOException, InterruptedException, ParseException {
 
         Process process = Runtime.getRuntime().exec("curl " + url.toString());
@@ -428,7 +450,7 @@ public class Mining {
         return null;
 
     }
-    
+
     static public void gitCloneRepository(URL url, Path pathDir) throws IOException, InterruptedException {
 
         Process process = Runtime.getRuntime().exec("git clone " + url.toString() + " " + pathDir.toString());
@@ -461,6 +483,5 @@ public class Mining {
         }
 
     }
-
 
 }
