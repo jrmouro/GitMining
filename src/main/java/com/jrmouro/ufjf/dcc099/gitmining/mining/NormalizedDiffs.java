@@ -29,9 +29,12 @@ import org.json.simple.parser.ParseException;
 public class NormalizedDiffs implements Iterable<NormalizedDiff>, Plottable{
     
     final private List<NormalizedDiff> nomalizedDiffs = new ArrayList();
-    final private Plottables plottables = new Plottables(); 
+    final private Plottables plottables; 
+
+    public NormalizedDiffs(String title) {
+        this.plottables = new Plottables(title); 
+    }
     
-        
     public void add(NormalizedDiff diff){
         this.nomalizedDiffs.add(diff);
     }
@@ -39,6 +42,13 @@ public class NormalizedDiffs implements Iterable<NormalizedDiff>, Plottable{
     public Integer size(){
         return this.nomalizedDiffs.size();
     }
+
+    @Override
+    public String title() {
+        return this.plottables.title();
+    }
+    
+    
 
     @Override
     public Iterator<NormalizedDiff> iterator() {
@@ -122,9 +132,9 @@ public class NormalizedDiffs implements Iterable<NormalizedDiff>, Plottable{
     public void plot() {
         
         try {
-            Plottable p1 = new PolynomPlottable(this.polynomChangedFiles(),CanonicalPath.getPath("changedFiles.plot"), "ChangedFiles");
-            Plottable p2 = new PolynomPlottable(this.polynomInsertions(),CanonicalPath.getPath("insertions.plot"), "Insertions");
-            Plottable p3 = new PolynomPlottable(this.polynomDeletions(),CanonicalPath.getPath("deletions.plot"), "Deletions");
+            Plottable p1 = new PolynomPlottable(this.polynomChangedFiles(),CanonicalPath.getPath("changedFiles.plot"), this.title() + " - ChangedFiles");
+            Plottable p2 = new PolynomPlottable(this.polynomInsertions(),CanonicalPath.getPath("insertions.plot"), this.title() + " - Insertions");
+            Plottable p3 = new PolynomPlottable(this.polynomDeletions(),CanonicalPath.getPath("deletions.plot"), this.title() + " - Deletions");
             this.plottables.add(p1);
             this.plottables.add(p2);
             this.plottables.add(p3);
@@ -144,7 +154,7 @@ public class NormalizedDiffs implements Iterable<NormalizedDiff>, Plottable{
         
     }
     
-    static public NormalizedDiffs getNormalizedDiffs(Path pathRep, boolean onlyMergesCommits) throws IOException, InterruptedException, ParseException {
+    static public NormalizedDiffs getNormalizedDiffs(Path pathRep, boolean onlyMergesCommits, String title) throws IOException, InterruptedException, ParseException {
                 
         Diff diffRef = null;
         
@@ -153,22 +163,22 @@ public class NormalizedDiffs implements Iterable<NormalizedDiff>, Plottable{
         if(commits.size() > 1)
             diffRef = NormalizedDiff.gitDiff(commits.get(0), commits.get(commits.size() - 1), pathRep, null);
         
-        return getNormalizedDiffs(commits, pathRep, diffRef);
+        return getNormalizedDiffs(commits, pathRep, diffRef, title);
     }
     
-    static public NormalizedDiffs getNormalizedDiffs(Commits commits, Path pathRep) throws IOException, InterruptedException {
+    static public NormalizedDiffs getNormalizedDiffs(Commits commits, Path pathRep, String title) throws IOException, InterruptedException {
                 
         Diff diffRef = null;
         
         if(commits.size() > 1)
             diffRef = NormalizedDiff.gitDiff(commits.get(0), commits.get(commits.size() - 1), pathRep, null);
         
-        return getNormalizedDiffs(commits, pathRep, diffRef);
+        return getNormalizedDiffs(commits, pathRep, diffRef, title);
     }
     
-    static public NormalizedDiffs getNormalizedDiffs(Commits commits, Path pathRep, Diff diffRef) throws IOException, InterruptedException {
+    static public NormalizedDiffs getNormalizedDiffs(Commits commits, Path pathRep, Diff diffRef, String title) throws IOException, InterruptedException {
 
-        NormalizedDiffs ret = new NormalizedDiffs();
+        NormalizedDiffs ret = new NormalizedDiffs(title);
 
         for (int i = 0; i < commits.size() - 1; i++) {
             ret.add(NormalizedDiff.gitDiff(commits.get(i), commits.get(i + 1), pathRep, diffRef));
@@ -177,7 +187,7 @@ public class NormalizedDiffs implements Iterable<NormalizedDiff>, Plottable{
         return ret;
     }
     
-    static public NormalizedDiffs getNormalizedDiffs(Commits commits, Integer indexFirst, Integer indexLast, double pass, Path pathRep) throws IOException, InterruptedException {
+    static public NormalizedDiffs getNormalizedDiffs(Commits commits, Integer indexFirst, Integer indexLast, double pass, Path pathRep, String title) throws IOException, InterruptedException {
 
         
         Diff diffRef = null;
@@ -186,7 +196,7 @@ public class NormalizedDiffs implements Iterable<NormalizedDiff>, Plottable{
             diffRef = NormalizedDiff.gitDiff(commits.get(0), commits.get(commits.size() - 1), pathRep, null);
         
         
-        NormalizedDiffs ret = new NormalizedDiffs();
+        NormalizedDiffs ret = new NormalizedDiffs(title);
         int a = 1;
         int f = indexFirst;
         int i = f + (int)(a*pass);
@@ -205,10 +215,10 @@ public class NormalizedDiffs implements Iterable<NormalizedDiff>, Plottable{
     
     
   
-    static public NormalizedDiffs getNormalizedDiffs(Commits commits, Integer indexFirst, Integer indexLast, Integer pass, Path pathRep, Diff diffRef) throws IOException, InterruptedException {
+    static public NormalizedDiffs getNormalizedDiffs(Commits commits, Integer indexFirst, Integer indexLast, Integer pass, Path pathRep, Diff diffRef, String title) throws IOException, InterruptedException {
 
         
-        NormalizedDiffs ret = new NormalizedDiffs();
+        NormalizedDiffs ret = new NormalizedDiffs(title);
         
         int f = indexFirst;
         int i = f + pass;

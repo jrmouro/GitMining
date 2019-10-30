@@ -1,4 +1,4 @@
-set title "Deletions"
+set title "low-pro-for-jqueryDeletions"
 set xlabel "elapse time"
 set ylabel "volume"
 set grid

@@ -17,6 +17,11 @@ import java.util.List;
 public class Plottables implements Iterable<Plottable>, Plottable{
 
     final private List<Plottable> plottables = new ArrayList();
+    final private String title;
+
+    public Plottables(String title) {
+        this.title = title;
+    }
     
     public void add(Plottable p){
         this.plottables.add(p);
@@ -32,6 +37,13 @@ public class Plottables implements Iterable<Plottable>, Plottable{
             t.plot();
         });
     }
+
+    @Override
+    public String title() {
+        return this.title;
+    }
+    
+    
 
     @Override
     public Path script(Path data) {

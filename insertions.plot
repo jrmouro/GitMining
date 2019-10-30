@@ -1,4 +1,4 @@
-set title "Insertions"
+set title "low-pro-for-jqueryInsertions"
 set xlabel "elapse time"
 set ylabel "volume"
 set grid

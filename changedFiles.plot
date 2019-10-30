@@ -1,4 +1,4 @@
-set title "ChangedFiles"
+set title "low-pro-for-jquery-ChangedFiles"
 set xlabel "elapse time"
 set ylabel "volume"
 set grid

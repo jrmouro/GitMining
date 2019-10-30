@@ -13,5 +13,6 @@ import java.nio.file.Path;
  */
 public interface Plottable {
     public void plot();
+    public String title();
     public Path script(Path data);
 }

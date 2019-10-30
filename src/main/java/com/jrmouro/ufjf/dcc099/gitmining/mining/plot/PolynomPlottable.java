@@ -28,6 +28,13 @@ public class PolynomPlottable extends ScriptPlottable{
         this.scriptPath = scriptPath;
         this.title = title;
     }
+
+    @Override
+    public String title() {
+        return this.title;
+    }
+    
+    
     
     @Override
     public Path script() {

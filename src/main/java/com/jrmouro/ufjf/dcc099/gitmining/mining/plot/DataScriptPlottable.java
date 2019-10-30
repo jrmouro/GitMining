@@ -25,6 +25,9 @@ public abstract class DataScriptPlottable implements Plottable{
     }
     
     @Override
+    public abstract String title();
+    
+    @Override
     final public void plot() {
         
         Process process = null;

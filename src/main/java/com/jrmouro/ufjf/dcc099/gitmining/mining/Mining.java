@@ -46,11 +46,11 @@ public class Mining {
 
     private final NormalizedDiffs ndd;
 
-    private final UnivariateFunction polynomChangedDeletions;
+    private final UnivariateFunction polynomDeletions;
 
-    private final UnivariateFunction polynomChangedInsertions;
+    private final UnivariateFunction polynomInsertions;
 
-    private final UnivariateFunction polynomChangedChangedFiles;
+    private final UnivariateFunction polynomChangedFiles;
 
     private MergeConflicts mergeConflicts = null;
 
@@ -70,16 +70,16 @@ public class Mining {
         return ndd;
     }
 
-    public UnivariateFunction getPolynomChangedDeletions() {
-        return polynomChangedDeletions;
+    public UnivariateFunction getPolynomDeletions() {
+        return polynomDeletions;
     }
 
-    public UnivariateFunction getPolynomChangedInsertions() {
-        return polynomChangedInsertions;
+    public UnivariateFunction getPolynomInsertions() {
+        return polynomInsertions;
     }
 
-    public UnivariateFunction getPolynomChangedChangedFiles() {
-        return polynomChangedChangedFiles;
+    public UnivariateFunction getPolynomChangedFiles() {
+        return polynomChangedFiles;
     }
 
     public void gitCloneRepository() throws IOException, InterruptedException, Exception {
@@ -90,81 +90,81 @@ public class Mining {
         }
     }
 
-    public JSONObject getGithubRepositoryJSONObject() {
+    public final JSONObject getGithubRepositoryJSONObject() {
         return githubRepositoryJSONObject;
     }
 
-    public Commits getMergeCommits() {
+    public final Commits getMergeCommits() {
         return mergeCommits;
     }
 
-    public Commits getCommits() {
+    public final Commits getCommits() {
         return commits;
     }
 
-    public Diff getTotal() {
+    public final Diff getTotal() {
         return total;
     }
 
-    public Diffs getCommitDiffs() {
+    public final Diffs getCommitDiffs() {
         return diffs;
     }
 
-    public MergeConflicts getMergeConflicts() {
+    public final MergeConflicts getMergeConflicts() {
         return mergeConflicts;
     }
 
-    public Map<String, Long> getGithubLanguages() {
+    public final Map<String, Long> getGithubLanguages() {
         return githubLanguages;
     }
 
-    public List<String> getBranches() {
+    public final List<String> getBranches() {
         return branches;
     }
 
-    public Long stargazersCount() {
+    public final Long stargazersCount() {
         if (this.githubRepositoryJSONObject != null) {
             return (Long) this.githubRepositoryJSONObject.get("stargazers_count");
         }
         return 0L;
     }
 
-    public Long subscribersCount() {
+    public final Long subscribersCount() {
         if (this.githubRepositoryJSONObject != null) {
             return (Long) this.githubRepositoryJSONObject.get("subscribers_count");
         }
         return 0L;
     }
 
-    public Long networkCount() {
+    public final Long networkCount() {
         if (this.githubRepositoryJSONObject != null) {
             return (Long) this.githubRepositoryJSONObject.get("network_count");
         }
         return 0L;
     }
 
-    public Long forksCount() {
+    public final Long forksCount() {
         if (this.githubRepositoryJSONObject != null) {
             return (Long) this.githubRepositoryJSONObject.get("forks_count");
         }
         return 0L;
     }
 
-    public String name() {
+    public final String name() {
         if (this.githubRepositoryJSONObject != null) {
             return (String) this.githubRepositoryJSONObject.get("name");
         }
         return "";
     }
 
-    public Long openIssuesCount() {
+    public final Long openIssuesCount() {
         if (this.githubRepositoryJSONObject != null) {
             return (Long) this.githubRepositoryJSONObject.get("open_issues_count");
         }
         return 0L;
     }
 
-    public Long watchersCount() {
+    public final Long watchersCount() {
         if (this.githubRepositoryJSONObject != null) {
             return (Long) this.githubRepositoryJSONObject.get("watchers_count");
         }
@@ -215,28 +215,28 @@ public class Mining {
 
                 MergeConflicts.setConflictCommits(this.commits, mergeConflicts);
 
-                this.ndd = NormalizedDiffs.getNormalizedDiffs(commits, 0, commits.size() - 1, Double.valueOf(commits.size()) / fatorNormalizedDiffs, pathDir);
+                this.ndd = NormalizedDiffs.getNormalizedDiffs(commits, 0, commits.size() - 1, Double.valueOf(commits.size()) / fatorNormalizedDiffs, pathDir, this.name());
 
-                this.polynomChangedChangedFiles = this.ndd.polynomChangedFilesFunction();
+                this.polynomChangedFiles = this.ndd.polynomChangedFilesFunction();
 
-                this.polynomChangedDeletions = this.ndd.polynomDeletionsFunction();
+                this.polynomDeletions = this.ndd.polynomDeletionsFunction();
 
-                this.polynomChangedInsertions = this.ndd.polynomInsertionsFunction();
+                this.polynomInsertions = this.ndd.polynomInsertionsFunction();
                 
                 ndd.plot();
 
             } else {
                 this.ndd = null;
-                this.polynomChangedChangedFiles = null;
-                this.polynomChangedDeletions = null;
-                this.polynomChangedInsertions = null;
+                this.polynomChangedFiles = null;
+                this.polynomDeletions = null;
+                this.polynomInsertions = null;
             }
 
         } else {
             this.ndd = null;
-            this.polynomChangedChangedFiles = null;
-            this.polynomChangedDeletions = null;
-            this.polynomChangedInsertions = null;
+            this.polynomChangedFiles = null;
+            this.polynomDeletions = null;
+            this.polynomInsertions = null;
         }
 
     }

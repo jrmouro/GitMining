@@ -19,6 +19,9 @@ public abstract class ScriptPlottable extends DataScriptPlottable{
     
     abstract public Path script();
     
+    @Override
+    public abstract String title();
+    
 
     @Override
     final public Path script(Path data) {
