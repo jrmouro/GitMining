@@ -34,5 +34,12 @@ public class WeightFunction{
     public Double getValue() {
         return this.weight * this.similarityFunction.getValue();
     }
+
+    @Override
+    public String toString() {
+        return this.getValue().toString();
+    }
+    
+    
     
 }

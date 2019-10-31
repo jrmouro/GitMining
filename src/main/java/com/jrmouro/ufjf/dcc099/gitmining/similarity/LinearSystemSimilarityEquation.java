@@ -56,6 +56,19 @@ public class LinearSystemSimilarityEquation{
             return this.list.get(0).getWeights();
         return null;
     }
+
+    @Override
+    public String toString() {
+        
+        String ret = "SimilarityMatrix\n";
+        
+        for (SimilarityEquation similarityEquation : list) {
+            ret += similarityEquation + "\n";
+        }
+        
+        return ret;
+    }
+    
     
     
 }

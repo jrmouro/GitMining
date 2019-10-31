@@ -67,5 +67,12 @@ public class SimilarityEquation{
         }
         return ret;
     }
+
+    @Override
+    public String toString() {
+        return list.toString();
+    }
+    
+    
     
 }

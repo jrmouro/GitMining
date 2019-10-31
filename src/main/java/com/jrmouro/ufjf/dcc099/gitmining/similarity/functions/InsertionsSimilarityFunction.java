@@ -5,6 +5,7 @@
  */
 package com.jrmouro.ufjf.dcc099.gitmining.similarity.functions;
 
+import com.jrmouro.ufjf.dcc099.gitmining.polynom.Polynom;
 import com.jrmouro.ufjf.dcc099.gitmining.project.Project;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.ProjectSimilarityFunction;
 import java.util.logging.Level;
@@ -22,7 +23,8 @@ public class InsertionsSimilarityFunction  extends ProjectSimilarityFunction{
         super(project, param);
         
         if(param instanceof Double)
-            value = project.mining.getPolynomInsertions().value((Double)param);
+            value = Polynom.value((Double)param, project.mining.getPolynomInsertions());
+            //value = project.mining.getPolynomInsertions().value((Double)param);
         else
             try {
                 throw new Exception("DeletionsSimilarityFunction works only with Double param");

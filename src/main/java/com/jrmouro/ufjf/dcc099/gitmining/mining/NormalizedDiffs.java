@@ -48,8 +48,6 @@ public class NormalizedDiffs implements Iterable<NormalizedDiff>, Plottable{
         return this.plottables.title();
     }
     
-    
-
     @Override
     public Iterator<NormalizedDiff> iterator() {
         return this.nomalizedDiffs.iterator();

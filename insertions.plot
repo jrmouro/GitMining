@@ -1,7 +1,7 @@
-set title "low-pro-for-jqueryInsertions"
+set title "GitMining - Insertions"
 set xlabel "elapse time"
 set ylabel "volume"
 set grid
-f(x)=(-9745.009998019337*x**0)+(53400.0764098636*x**1)+(-103970.20136240673*x**2)+(86736.37928702947*x**3)+(-26421.15982942474*x**4)
+f(x)=(42.07084635268646*x**0)+(-332.3454867961655*x**1)+(835.5260117181931*x**2)+(-843.9005736219024*x**3)+(299.626375305924*x**4)
 set xrange [0:1]
 plot f(x)

@@ -7,6 +7,7 @@ package edu.ufjf.dcc099.gitmining;
 
 import com.jrmouro.ufjf.dcc099.gitmining.canonicalPath.CanonicalPath;
 import com.jrmouro.ufjf.dcc099.gitmining.mining.Mining;
+import com.jrmouro.ufjf.dcc099.gitmining.polynom.Polynom;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -50,10 +51,10 @@ public class MiningJUnitTest {
         Mining mining = new Mining(path, url, true, 5.0);
         
         
-        System.out.println(mining.getBranches());
+       // System.out.println(mining.getBranches());
         
     
-        
+        System.out.println(Polynom.value(0.5, mining.getPolynomChangedFiles()));
         
     }
 }

@@ -46,11 +46,18 @@ public class Mining {
 
     private final NormalizedDiffs ndd;
 
-    private final UnivariateFunction polynomDeletions;
+    //private final UnivariateFunction polynomDeletions;
 
-    private final UnivariateFunction polynomInsertions;
+    //private final UnivariateFunction polynomInsertions;
 
-    private final UnivariateFunction polynomChangedFiles;
+    //private final UnivariateFunction polynomChangedFiles;
+    
+    private final double[] polynomDeletions;
+
+    private final double[] polynomInsertions;
+
+    private final double[] polynomChangedFiles;
+
 
     private MergeConflicts mergeConflicts = null;
 
@@ -70,7 +77,7 @@ public class Mining {
         return ndd;
     }
 
-    public UnivariateFunction getPolynomDeletions() {
+    /*public UnivariateFunction getPolynomDeletions() {
         return polynomDeletions;
     }
 
@@ -79,6 +86,18 @@ public class Mining {
     }
 
     public UnivariateFunction getPolynomChangedFiles() {
+        return polynomChangedFiles;
+    }*/
+    
+    public double[] getPolynomDeletions() {
+        return polynomDeletions;
+    }
+
+    public double[]  getPolynomInsertions() {
+        return polynomInsertions;
+    }
+
+    public double[]  getPolynomChangedFiles() {
         return polynomChangedFiles;
     }
 
@@ -217,11 +236,17 @@ public class Mining {
 
                 this.ndd = NormalizedDiffs.getNormalizedDiffs(commits, 0, commits.size() - 1, Double.valueOf(commits.size()) / fatorNormalizedDiffs, pathDir, this.name());
 
-                this.polynomChangedFiles = this.ndd.polynomChangedFilesFunction();
+                //this.polynomChangedFiles = this.ndd.polynomChangedFilesFunction();
 
-                this.polynomDeletions = this.ndd.polynomDeletionsFunction();
+                //this.polynomDeletions = this.ndd.polynomDeletionsFunction();
 
-                this.polynomInsertions = this.ndd.polynomInsertionsFunction();
+                //this.polynomInsertions = this.ndd.polynomInsertionsFunction();
+                
+                this.polynomChangedFiles = this.ndd.polynomChangedFiles();
+
+                this.polynomDeletions = this.ndd.polynomDeletions();
+
+                this.polynomInsertions = this.ndd.polynomInsertions();
                 
                 ndd.plot();
 

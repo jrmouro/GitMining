@@ -5,11 +5,11 @@
  */
 package com.jrmouro.ufjf.dcc099.experiment;
 
-import com.jrmouro.genetic.chromosome.ChromosomeAbstract;
-import com.jrmouro.genetic.chromosome.ChromosomeDouble;
+import com.jrmouro.genetic.evolutionstrategies.chromosome.ChromosomeAbstract;
+import com.jrmouro.genetic.evolutionstrategies.chromosome.ChromosomeDouble;
 import com.jrmouro.genetic.evolutionstrategies.chromosome.ChromosomeOne;
 import com.jrmouro.genetic.evolutionstrategies.evolution.EvolutionScoutSniffer;
-import com.jrmouro.genetic.fitnessfunction.FitnessFunction;
+import com.jrmouro.genetic.evolutionstrategies.fitnessfunction.FitnessFunction;
 import com.jrmouro.ufjf.dcc099.gitmining.project.Project;
 import com.jrmouro.ufjf.dcc099.gitmining.canonicalPath.CanonicalPath;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.FactorySimilarytyFunction;
@@ -58,12 +58,15 @@ public class Piloto implements Experiment {
         }
 
         @Override
-        public double fitness(ChromosomeAbstract<Double> ca) {
+        public Double fitness(ChromosomeAbstract<Double> ca) {
             
             lsse.setWeights(ca.getRepresentation());
 
             return Math.abs(lsse.getValue());
         }
+
+        
+        
 
 
     }
@@ -92,6 +95,8 @@ public class Piloto implements Experiment {
                 // Gera o Sistema de Equações de Similaridade
 
                 lsse = Piloto.getLSSE(projectRef, paramclassFunctions);
+                
+                System.out.println(lsse);
 
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(Piloto.class.getName()).log(Level.SEVERE, null, ex);
@@ -121,7 +126,7 @@ public class Piloto implements Experiment {
             };*/
 
             // um cromossomo inicial
-            ChromosomeDouble c = new ChromosomeOne(lsse.getWeights(), fitness, 0.1);
+            ChromosomeDouble c = new ChromosomeOne(lsse.getWeights(), (com.jrmouro.genetic.evolutionstrategies.fitnessfunction.FitnessFunction) fitness, 0.1);
 
             c = (ChromosomeDouble) new EvolutionScoutSniffer(100, 0.001).evolve(c, 100, false);
 
@@ -156,33 +161,35 @@ public class Piloto implements Experiment {
 
     public static void main(String[] args) throws MalformedURLException, ClassNotFoundException, IOException, InterruptedException, ParseException {
 
-        //Funções de Sililaridade
-        String mergeConflicts = "com.jrmouro.ufjf.dcc099.gitmining.similarity.functions.MergeConflictsSimilarityFunction";
-
-        String languages = "com.jrmouro.ufjf.dcc099.gitmining.similarity.functions.LanguagesSimilarityFunction";
-        List<String> languagesParam = new ArrayList();
-        languagesParam.add("JavaScript");
-        languagesParam.add("Ruby");
-
-        List<ParamClassFunction> funcoes = new ArrayList();
-        funcoes.add(new ParamClassFunction(Class.forName(mergeConflicts), null));
-        funcoes.add(new ParamClassFunction(Class.forName(languages), languagesParam));
-
+        
+        String deletions = "com.jrmouro.ufjf.dcc099.gitmining.similarity.functions.DeletionsSimilarityFunction";
+        String changedFiles = "com.jrmouro.ufjf.dcc099.gitmining.similarity.functions.ChangedFilesSimilarityFunction";
+        String insertions = "com.jrmouro.ufjf.dcc099.gitmining.similarity.functions.InsertionsSimilarityFunction";
+        
+        List<ParamClassFunction> funcoes = new ArrayList();       
+        
+        
+        for(double d = 0.2; d < 1.0; d = d + 0.2){
+            funcoes.add(new ParamClassFunction(Class.forName(deletions), d));
+            funcoes.add(new ParamClassFunction(Class.forName(insertions), d));
+            funcoes.add(new ParamClassFunction(Class.forName(changedFiles), d));
+        }
+        
         //Projetos de referência
-        URL url1 = new URL("https://api.github.com/repos/jamesgolick/resource_controller");
-        URL url2 = new URL("https://api.github.com/repos/defunkt/zippy");
-        URL url3 = new URL("https://api.github.com/repos/danwrong/low-pro-for-jquery");
+        URL url1 = new URL("https://api.github.com/repos/jrmouro/chatProject");
+        URL url2 = new URL("https://api.github.com/repos/jrmouro/provo");
+        URL url3 = new URL("https://api.github.com/repos/jrmouro/genetic");
 
         List<Project> projectList = new ArrayList();
-        projectList.add(new Project(url1, 1.0, false, 5.0));
-        projectList.add(new Project(url2, 0.8, false, 5.0));
-        projectList.add(new Project(url3, 0.7, false, 5.0));
+        projectList.add(new Project(url1, 1.0, false, 10.0));
+        projectList.add(new Project(url2, 1.0, false, 10.0));
+        projectList.add(new Project(url3, 1.0, false, 10.0));
 
         //Projeto a ser analisado
         URL gitMining = new URL("https://api.github.com/repos/jrmouro/GitMining");
 
         //Experimento "Piloto"
-        Piloto piloto = new Piloto(funcoes, projectList, new Project(gitMining, false, 5.0), 5.0);
+        Piloto piloto = new Piloto(funcoes, projectList, new Project(gitMining, false, 10.0), 5.0);
 
         piloto.run();
 
