@@ -5,11 +5,12 @@
  */
 package com.jrmouro.ufjf.dcc099.experiment;
 
-import com.jrmouro.genetic.evolutionstrategies.chromosome.ChromosomeAbstract;
-import com.jrmouro.genetic.evolutionstrategies.chromosome.ChromosomeDouble;
+
+import com.jrmouro.genetic.chromosome.ChromosomeAbstract;
+import com.jrmouro.genetic.chromosome.ChromosomeDouble;
 import com.jrmouro.genetic.evolutionstrategies.chromosome.ChromosomeOne;
 import com.jrmouro.genetic.evolutionstrategies.evolution.EvolutionScoutSniffer;
-import com.jrmouro.genetic.evolutionstrategies.fitnessfunction.FitnessFunction;
+import com.jrmouro.genetic.fitnessfunction.FitnessFunction;
 import com.jrmouro.ufjf.dcc099.gitmining.project.Project;
 import com.jrmouro.ufjf.dcc099.gitmining.canonicalPath.CanonicalPath;
 import com.jrmouro.ufjf.dcc099.gitmining.similarity.FactorySimilarytyFunction;
@@ -58,7 +59,7 @@ public class Piloto implements Experiment {
         }
 
         @Override
-        public Double fitness(ChromosomeAbstract<Double> ca) {
+        public double fitness(ChromosomeAbstract<Double> ca) {
             
             lsse.setWeights(ca.getRepresentation());
 
@@ -113,20 +114,10 @@ public class Piloto implements Experiment {
             // FitnessFunction
             
             Fitness fitness = new Fitness(lsse);
-            /*
-            FitnessFunction<Double> fitness = new FitnessFunction<Double>() {
-                @Override
-                public double fitness(ChromosomeAbstract<Double> ca) {
-
-                    lsse.setWeights(ca.getRepresentation());
-
-                    return Math.abs(lsse.getValue());
-                }
-
-            };*/
+            
 
             // um cromossomo inicial
-            ChromosomeDouble c = new ChromosomeOne(lsse.getWeights(), (com.jrmouro.genetic.evolutionstrategies.fitnessfunction.FitnessFunction) fitness, 0.1);
+            ChromosomeDouble c = new ChromosomeOne(lsse.getWeights(), fitness, 0.1);
 
             c = (ChromosomeDouble) new EvolutionScoutSniffer(100, 0.001).evolve(c, 100, false);
 
